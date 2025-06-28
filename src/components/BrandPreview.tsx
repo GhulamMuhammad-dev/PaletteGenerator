@@ -1,37 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { 
-  Monitor, 
-  Smartphone, 
-  Sun, 
-  Moon, 
-  FileText, 
-  Settings, 
-  Edit3, 
-  Type, 
-  Image, 
-  Square, 
-  Upload, 
-  X,
-  Globe,
-  Palette,
-  Grid,
-  Instagram,
-  Facebook,
-  Twitter,
-  Linkedin,
-  Download,
-  Copy,
-  Check,
-  RotateCcw,
-  Layers,
-  Layout
-} from 'lucide-react';
+import { Monitor, Smartphone, Sun, Moon, FileText, Settings, Edit3, Type, Image, Square, Upload, X, Instagram, Facebook, Twitter, Linkedin, Plus, Minus, AlignLeft, AlignCenter, AlignRight, Bold, Italic } from 'lucide-react';
 import { ColorInfo } from '../types/color';
-
-interface BrandPreviewProps {
-  colors: ColorInfo[];
-  isDarkMode?: boolean;
-}
 
 interface ColorAssignment {
   primary: string;
@@ -45,27 +14,35 @@ interface ColorAssignment {
 
 interface CustomContent {
   brandName: string;
-  heroTitle: string;
-  heroDescription: string;
-  primaryButtonText: string;
-  secondaryButtonText: string;
-  featureTitle: string;
-  features: Array<{
-    title: string;
-    description: string;
-  }>;
-  footerText: string;
   tagline: string;
   socialHandle: string;
-  websiteUrl: string;
+  website: string;
+  posts: Array<{
+    title: string;
+    subtitle: string;
+    description: string;
+    hashtags: string;
+    callToAction: string;
+  }>;
+}
+
+interface TextSettings {
+  titleSize: number;
+  subtitleSize: number;
+  descriptionSize: number;
+  titleWeight: 'normal' | 'bold' | 'black';
+  titleAlign: 'left' | 'center' | 'right';
+  subtitleWeight: 'normal' | 'bold';
+  subtitleAlign: 'left' | 'center' | 'right';
+  descriptionAlign: 'left' | 'center' | 'right';
+  titleStyle: 'normal' | 'italic';
+  subtitleStyle: 'normal' | 'italic';
 }
 
 interface ImageAssets {
   logo: string | null;
   heroImage: string | null;
-  featureIcons: (string | null)[];
-  profileImage: string | null;
-  productImage: string | null;
+  productImages: (string | null)[];
 }
 
 interface ColorPickerState {
@@ -75,20 +52,22 @@ interface ColorPickerState {
   elementRect: DOMRect | null;
 }
 
-type PreviewType = 'web' | 'design' | 'pattern' | 'social';
-type ViewMode = 'desktop' | 'mobile';
-type SocialPlatform = 'instagram' | 'facebook' | 'twitter' | 'linkedin';
+interface BrandPreviewProps {
+  colors: ColorInfo[];
+  isDarkMode?: boolean;
+}
 
 export const BrandPreview: React.FC<BrandPreviewProps> = ({ colors, isDarkMode = false }) => {
-  const [previewType, setPreviewType] = useState<PreviewType>('web');
-  const [viewMode, setViewMode] = useState<ViewMode>('desktop');
-  const [socialPlatform, setSocialPlatform] = useState<SocialPlatform>('instagram');
+  const [activePreview, setActivePreview] = useState<'web' | 'design' | 'pattern' | 'social'>('social');
+  const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('mobile');
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [showColorAssignment, setShowColorAssignment] = useState(false);
   const [showContentEditor, setShowContentEditor] = useState(false);
   const [showImageUpload, setShowImageUpload] = useState(false);
+  const [showTextSettings, setShowTextSettings] = useState(false);
   const [showMobileControls, setShowMobileControls] = useState(false);
-  const [copiedText, setCopiedText] = useState<string | null>(null);
+  const [selectedPlatform, setSelectedPlatform] = useState<'instagram' | 'facebook' | 'twitter' | 'linkedin'>('instagram');
+  const [selectedPost, setSelectedPost] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [currentImageTarget, setCurrentImageTarget] = useState<string>('');
   const previewContainerRef = useRef<HTMLDivElement>(null);
@@ -111,29 +90,59 @@ export const BrandPreview: React.FC<BrandPreviewProps> = ({ colors, isDarkMode =
   });
 
   const [customContent, setCustomContent] = useState<CustomContent>({
-    brandName: 'Brand Name',
-    heroTitle: 'Welcome to Our Brand',
-    heroDescription: 'Experience the perfect harmony of colors in modern design. Our carefully crafted palette brings your vision to life.',
-    primaryButtonText: 'Get Started',
-    secondaryButtonText: 'Learn More',
-    featureTitle: 'Features',
-    features: [
-      { title: 'Feature 1', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.' },
-      { title: 'Feature 2', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.' },
-      { title: 'Feature 3', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.' }
-    ],
-    footerText: '© 2024 Brand Name. Designed with our custom color palette.',
-    tagline: 'Bringing colors to life',
-    socialHandle: '@brandname',
-    websiteUrl: 'www.brandname.com'
+    brandName: 'Coffee House',
+    tagline: 'Perfect Coffee Experience',
+    socialHandle: '@coffeehouse',
+    website: 'www.coffeehouse.co',
+    posts: [
+      {
+        title: 'FUEL YOUR HUSTLE',
+        subtitle: 'Premium Coffee',
+        description: 'Energize your day with our perfectly crafted coffee blends',
+        hashtags: '#coffee #energy #hustle #premium',
+        callToAction: 'Order Now'
+      },
+      {
+        title: 'DID YOU KNOW',
+        subtitle: 'Coffee Facts',
+        description: 'Ethiopian goats discovered coffee when they became energetic after eating coffee berries',
+        hashtags: '#coffee #facts #ethiopia #history',
+        callToAction: 'Learn More'
+      },
+      {
+        title: 'SPREAD THE LOVE',
+        subtitle: 'Share the Experience',
+        description: 'Let the rich aroma of freshly brewed coffee warm your soul',
+        hashtags: '#coffee #love #fresh #aroma',
+        callToAction: 'Visit Us'
+      },
+      {
+        title: 'BUZZING WITH BEAN JUICE',
+        subtitle: 'Fresh Brew',
+        description: 'Start your morning right with our signature espresso blend',
+        hashtags: '#espresso #morning #fresh #signature',
+        callToAction: 'Try Today'
+      }
+    ]
+  });
+
+  const [textSettings, setTextSettings] = useState<TextSettings>({
+    titleSize: 32,
+    subtitleSize: 18,
+    descriptionSize: 14,
+    titleWeight: 'bold',
+    titleAlign: 'center',
+    subtitleWeight: 'normal',
+    subtitleAlign: 'center',
+    descriptionAlign: 'center',
+    titleStyle: 'normal',
+    subtitleStyle: 'normal'
   });
 
   const [imageAssets, setImageAssets] = useState<ImageAssets>({
     logo: null,
     heroImage: null,
-    featureIcons: [null, null, null],
-    profileImage: null,
-    productImage: null
+    productImages: [null, null, null, null]
   });
 
   // Update color assignment when colors or theme change
@@ -225,11 +234,11 @@ export const BrandPreview: React.FC<BrandPreviewProps> = ({ colors, isDarkMode =
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result as string;
-        if (currentImageTarget.startsWith('featureIcon-')) {
+        if (currentImageTarget.startsWith('productImage-')) {
           const index = parseInt(currentImageTarget.split('-')[1]);
           setImageAssets(prev => ({
             ...prev,
-            featureIcons: prev.featureIcons.map((icon, i) => i === index ? result : icon)
+            productImages: prev.productImages.map((img, i) => i === index ? result : img)
           }));
         } else {
           setImageAssets(prev => ({
@@ -251,11 +260,11 @@ export const BrandPreview: React.FC<BrandPreviewProps> = ({ colors, isDarkMode =
   };
 
   const removeImage = (target: string) => {
-    if (target.startsWith('featureIcon-')) {
+    if (target.startsWith('productImage-')) {
       const index = parseInt(target.split('-')[1]);
       setImageAssets(prev => ({
         ...prev,
-        featureIcons: prev.featureIcons.map((icon, i) => i === index ? null : icon)
+        productImages: prev.productImages.map((img, i) => i === index ? null : img)
       }));
     } else {
       setImageAssets(prev => ({
@@ -265,54 +274,15 @@ export const BrandPreview: React.FC<BrandPreviewProps> = ({ colors, isDarkMode =
     }
   };
 
-  const copyToClipboard = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopiedText(text);
-      setTimeout(() => setCopiedText(null), 2000);
-    } catch (err) {
-      console.error('Failed to copy:', err);
-    }
-  };
+  const platforms = [
+    { id: 'instagram', name: 'Instagram', icon: <Instagram className="w-4 h-4" />, aspectRatio: 'aspect-square' },
+    { id: 'facebook', name: 'Facebook', icon: <Facebook className="w-4 h-4" />, aspectRatio: 'aspect-[4/3]' },
+    { id: 'twitter', name: 'Twitter', icon: <Twitter className="w-4 h-4" />, aspectRatio: 'aspect-[16/9]' },
+    { id: 'linkedin', name: 'LinkedIn', icon: <Linkedin className="w-4 h-4" />, aspectRatio: 'aspect-[4/3]' }
+  ];
 
-  const resetColors = () => {
-    setColorAssignment({
-      primary: colors[0]?.hex || '#3B82F6',
-      secondary: colors[1]?.hex || '#EF4444',
-      accent: colors[2]?.hex || '#10B981',
-      background: theme === 'light' ? '#FFFFFF' : '#1F2937',
-      surface: theme === 'light' ? '#F9FAFB' : '#374151',
-      text: theme === 'light' ? '#111827' : '#F9FAFB',
-      textSecondary: theme === 'light' ? '#6B7280' : '#D1D5DB'
-    });
-  };
-
-  const previewTypes = [
-    { id: 'web', label: 'Web Preview', icon: <Globe className="w-4 h-4" />, shortLabel: 'Web' },
-    { id: 'design', label: 'Design Preview', icon: <Palette className="w-4 h-4" />, shortLabel: 'Design' },
-    { id: 'pattern', label: 'Pattern Preview', icon: <Grid className="w-4 h-4" />, shortLabel: 'Pattern' },
-    { id: 'social', label: 'Social Media', icon: <Instagram className="w-4 h-4" />, shortLabel: 'Social' }
-  ] as const;
-
-  const socialPlatforms = [
-    { id: 'instagram', label: 'Instagram', icon: <Instagram className="w-4 h-4" /> },
-    { id: 'facebook', label: 'Facebook', icon: <Facebook className="w-4 h-4" /> },
-    { id: 'twitter', label: 'Twitter', icon: <Twitter className="w-4 h-4" /> },
-    { id: 'linkedin', label: 'LinkedIn', icon: <Linkedin className="w-4 h-4" /> }
-  ] as const;
-
-  const containerClass = viewMode === 'mobile' 
-    ? 'max-w-sm mx-auto' 
-    : 'w-full';
-
-  const assignableElements = [
-    { key: 'primary', label: 'Primary Color', description: 'Header, primary buttons' },
-    { key: 'secondary', label: 'Secondary Color', description: 'Secondary buttons, accents' },
-    { key: 'accent', label: 'Accent Color', description: 'Icons, highlights' },
-    { key: 'background', label: 'Background', description: 'Main background color' },
-    { key: 'surface', label: 'Surface', description: 'Cards, sections' },
-    { key: 'text', label: 'Primary Text', description: 'Headings, main text' },
-    { key: 'textSecondary', label: 'Secondary Text', description: 'Descriptions, captions' }
+  const postLayouts = [
+    'minimal', 'bold', 'creative', 'professional'
   ];
 
   // Theme classes
@@ -321,6 +291,151 @@ export const BrandPreview: React.FC<BrandPreviewProps> = ({ colors, isDarkMode =
   const textPrimary = isDarkMode ? 'text-gray-100' : 'text-gray-900';
   const textSecondary = isDarkMode ? 'text-gray-300' : 'text-gray-600';
   const buttonHover = isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100';
+
+  const renderSocialMediaPost = () => {
+    const currentPost = customContent.posts[selectedPost];
+    const platform = platforms.find(p => p.id === selectedPlatform);
+    
+    return (
+      <div className={`${platform?.aspectRatio} w-full max-w-md mx-auto relative overflow-hidden rounded-lg shadow-lg`}>
+        {/* Background */}
+        <div 
+          className="absolute inset-0 cursor-pointer hover:opacity-90 transition-opacity"
+          style={{ backgroundColor: colorAssignment.background }}
+          onClick={(e) => handleElementClick('background', e)}
+          title="Click to change background color"
+        >
+          {/* Background Pattern/Texture */}
+          <div className="absolute inset-0 opacity-10">
+            <svg width="100%" height="100%" viewBox="0 0 100 100" className="w-full h-full">
+              <defs>
+                <pattern id="coffee-pattern" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+                  <circle cx="10" cy="10" r="2" fill={colorAssignment.accent} opacity="0.3"/>
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#coffee-pattern)" />
+            </svg>
+          </div>
+          
+          {/* Main Content Container */}
+          <div className="relative z-10 h-full flex flex-col justify-center items-center p-6 text-center">
+            {/* Logo/Brand Icon */}
+            {imageAssets.logo ? (
+              <img src={imageAssets.logo} alt="Logo" className="w-12 h-12 mb-4 object-contain" />
+            ) : (
+              <div 
+                className="w-12 h-12 rounded-full mb-4 cursor-pointer hover:opacity-80 transition-opacity flex items-center justify-center"
+                style={{ backgroundColor: colorAssignment.accent }}
+                onClick={(e) => handleElementClick('accent', e)}
+                title="Click to change accent color"
+              >
+                <span className="text-white font-bold text-lg">
+                  {customContent.brandName.charAt(0)}
+                </span>
+              </div>
+            )}
+
+            {/* Main Title */}
+            <h1 
+              className="cursor-pointer hover:opacity-80 transition-opacity mb-2 leading-tight"
+              style={{ 
+                color: colorAssignment.text,
+                fontSize: `${textSettings.titleSize}px`,
+                fontWeight: textSettings.titleWeight === 'black' ? 900 : textSettings.titleWeight === 'bold' ? 700 : 400,
+                textAlign: textSettings.titleAlign,
+                fontStyle: textSettings.titleStyle
+              }}
+              onClick={(e) => handleElementClick('text', e)}
+              title="Click to change text color"
+            >
+              {currentPost.title}
+            </h1>
+
+            {/* Subtitle */}
+            <h2 
+              className="cursor-pointer hover:opacity-80 transition-opacity mb-4"
+              style={{ 
+                color: colorAssignment.secondary,
+                fontSize: `${textSettings.subtitleSize}px`,
+                fontWeight: textSettings.subtitleWeight === 'bold' ? 700 : 400,
+                textAlign: textSettings.subtitleAlign,
+                fontStyle: textSettings.subtitleStyle
+              }}
+              onClick={(e) => handleElementClick('secondary', e)}
+              title="Click to change secondary color"
+            >
+              {currentPost.subtitle}
+            </h2>
+
+            {/* Product Image */}
+            {imageAssets.productImages[selectedPost] ? (
+              <div className="w-24 h-24 mb-4 rounded-lg overflow-hidden">
+                <img 
+                  src={imageAssets.productImages[selectedPost]!} 
+                  alt="Product" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            ) : (
+              <div 
+                className="w-24 h-24 mb-4 rounded-lg cursor-pointer hover:opacity-80 transition-opacity flex items-center justify-center"
+                style={{ backgroundColor: colorAssignment.surface }}
+                onClick={(e) => handleElementClick('surface', e)}
+                title="Click to change surface color"
+              >
+                <Image className="w-8 h-8 text-gray-400" />
+              </div>
+            )}
+
+            {/* Description */}
+            <p 
+              className="cursor-pointer hover:opacity-80 transition-opacity mb-4 leading-relaxed"
+              style={{ 
+                color: colorAssignment.textSecondary,
+                fontSize: `${textSettings.descriptionSize}px`,
+                textAlign: textSettings.descriptionAlign
+              }}
+              onClick={(e) => handleElementClick('textSecondary', e)}
+              title="Click to change secondary text color"
+            >
+              {currentPost.description}
+            </p>
+
+            {/* Call to Action Button */}
+            <button 
+              className="px-6 py-2 rounded-full font-semibold cursor-pointer hover:opacity-90 transition-opacity mb-3"
+              style={{ 
+                backgroundColor: colorAssignment.primary,
+                color: 'white'
+              }}
+              onClick={(e) => handleElementClick('primary', e)}
+              title="Click to change primary color"
+            >
+              {currentPost.callToAction}
+            </button>
+
+            {/* Social Handle */}
+            <p 
+              className="text-sm cursor-pointer hover:opacity-80 transition-opacity"
+              style={{ color: colorAssignment.textSecondary }}
+              onClick={(e) => handleElementClick('textSecondary', e)}
+            >
+              {customContent.socialHandle} • {customContent.website}
+            </p>
+
+            {/* Hashtags */}
+            <p 
+              className="text-xs mt-2 cursor-pointer hover:opacity-80 transition-opacity"
+              style={{ color: colorAssignment.accent }}
+              onClick={(e) => handleElementClick('accent', e)}
+            >
+              {currentPost.hashtags}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   if (colors.length === 0) {
     return (
@@ -332,584 +447,6 @@ export const BrandPreview: React.FC<BrandPreviewProps> = ({ colors, isDarkMode =
       </div>
     );
   }
-
-  const renderWebPreview = () => (
-    <div 
-      className={`${containerClass} transition-all duration-300 ${viewMode === 'desktop' ? 'min-h-[600px]' : ''}`}
-      style={{ backgroundColor: colorAssignment.background, color: colorAssignment.text }}
-    >
-      {/* Header */}
-      <header 
-        className="p-4 sm:p-6 text-white cursor-pointer hover:opacity-90 transition-opacity relative group"
-        style={{ backgroundColor: colorAssignment.primary }}
-        onClick={(e) => handleElementClick('primary', e)}
-        title="Click to change header color"
-      >
-        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-5 transition-all duration-200 pointer-events-none" />
-        <div className={`flex items-center justify-between ${viewMode === 'mobile' ? 'flex-col space-y-4' : ''} relative z-10`}>
-          <div className="flex items-center space-x-3">
-            {imageAssets.logo ? (
-              <img src={imageAssets.logo} alt="Logo" className="w-6 h-6 sm:w-8 sm:h-8 object-contain" />
-            ) : (
-              <div 
-                className="w-6 h-6 sm:w-8 sm:h-8 rounded-full cursor-pointer hover:opacity-80 transition-opacity relative group/accent"
-                style={{ backgroundColor: colorAssignment.accent }}
-                onClick={(e) => handleElementClick('accent', e)}
-                title="Click to change accent color"
-              >
-                <div className="absolute inset-0 bg-white bg-opacity-0 group-hover/accent:bg-opacity-10 rounded-full transition-all duration-200" />
-              </div>
-            )}
-            <h1 className="text-lg sm:text-xl font-bold">{customContent.brandName}</h1>
-          </div>
-          
-          {viewMode === 'desktop' && (
-            <nav className="flex space-x-4 sm:space-x-6">
-              <a href="#" className="hover:opacity-80 transition-opacity text-sm sm:text-base">Home</a>
-              <a href="#" className="hover:opacity-80 transition-opacity text-sm sm:text-base">About</a>
-              <a href="#" className="hover:opacity-80 transition-opacity text-sm sm:text-base">Services</a>
-              <a href="#" className="hover:opacity-80 transition-opacity text-sm sm:text-base">Contact</a>
-            </nav>
-          )}
-        </div>
-      </header>
-
-      {/* Hero Section */}
-      <section className="p-4 sm:p-6">
-        <div className={`${viewMode === 'mobile' ? 'text-center' : 'grid grid-cols-1 lg:grid-cols-2 gap-8 items-center'}`}>
-          <div>
-            <h2 
-              className="text-2xl sm:text-3xl font-bold mb-4 cursor-pointer hover:opacity-80 transition-opacity relative group"
-              style={{ color: colorAssignment.text }}
-              onClick={(e) => handleElementClick('text', e)}
-              title="Click to change text color"
-            >
-              <div className="absolute inset-0 bg-gray-500 bg-opacity-0 group-hover:bg-opacity-5 rounded transition-all duration-200" />
-              <span className="relative z-10">{customContent.heroTitle}</span>
-            </h2>
-            <p 
-              className="mb-6 text-sm sm:text-base cursor-pointer hover:opacity-80 transition-opacity relative group"
-              style={{ color: colorAssignment.textSecondary }}
-              onClick={(e) => handleElementClick('textSecondary', e)}
-              title="Click to change secondary text color"
-            >
-              <div className="absolute inset-0 bg-gray-500 bg-opacity-0 group-hover:bg-opacity-5 rounded transition-all duration-200" />
-              <span className="relative z-10">{customContent.heroDescription}</span>
-            </p>
-            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
-              <button 
-                className="px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium text-white transition-all hover:opacity-90 hover:scale-105 cursor-pointer relative group text-sm sm:text-base"
-                style={{ backgroundColor: colorAssignment.primary }}
-                onClick={(e) => handleElementClick('primary', e)}
-                title="Click to change primary button color"
-              >
-                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 rounded-lg transition-all duration-200" />
-                <span className="relative z-10">{customContent.primaryButtonText}</span>
-              </button>
-              <button 
-                className="px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium border-2 transition-all hover:opacity-80 hover:scale-105 cursor-pointer relative group text-sm sm:text-base"
-                style={{ 
-                  borderColor: colorAssignment.secondary, 
-                  color: colorAssignment.secondary 
-                }}
-                onClick={(e) => handleElementClick('secondary', e)}
-                title="Click to change secondary button color"
-              >
-                <div className="absolute inset-0 bg-gray-500 bg-opacity-0 group-hover:bg-opacity-5 rounded-lg transition-all duration-200" />
-                <span className="relative z-10">{customContent.secondaryButtonText}</span>
-              </button>
-            </div>
-          </div>
-          
-          {(viewMode === 'desktop' || viewMode === 'mobile') && (
-            <div className="relative mt-6 lg:mt-0">
-              {imageAssets.heroImage ? (
-                <img 
-                  src={imageAssets.heroImage} 
-                  alt="Hero" 
-                  className="w-full h-32 sm:h-48 object-cover rounded-lg"
-                />
-              ) : (
-                <div 
-                  className="h-32 sm:h-48 rounded-lg cursor-pointer hover:opacity-80 transition-opacity relative group"
-                  style={{ backgroundColor: colorAssignment.surface }}
-                  onClick={(e) => handleElementClick('surface', e)}
-                  title="Click to change surface color"
-                >
-                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-5 rounded-lg transition-all duration-200" />
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section 
-        className="p-4 sm:p-6 cursor-pointer hover:opacity-95 transition-opacity relative group"
-        style={{ backgroundColor: colorAssignment.surface }}
-        onClick={(e) => handleElementClick('surface', e)}
-        title="Click to change section background color"
-      >
-        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-5 transition-all duration-200 pointer-events-none" />
-        <h3 
-          className="text-xl sm:text-2xl font-bold text-center mb-6 sm:mb-8 cursor-pointer hover:opacity-80 transition-opacity relative group/title z-10"
-          style={{ color: colorAssignment.text }}
-          onClick={(e) => handleElementClick('text', e)}
-          title="Click to change text color"
-        >
-          <div className="absolute inset-0 bg-gray-500 bg-opacity-0 group-hover/title:bg-opacity-5 rounded transition-all duration-200" />
-          <span className="relative z-10">{customContent.featureTitle}</span>
-        </h3>
-        
-        <div className={`grid gap-4 sm:gap-6 ${viewMode === 'mobile' ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'} relative z-10`}>
-          {customContent.features.map((feature, index) => (
-            <div 
-              key={index}
-              className="p-4 sm:p-6 rounded-lg cursor-pointer hover:opacity-95 transition-all hover:scale-105 relative group/card"
-              style={{ backgroundColor: colorAssignment.background }}
-              onClick={(e) => handleElementClick('background', e)}
-              title="Click to change card background color"
-            >
-              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover/card:bg-opacity-5 rounded-lg transition-all duration-200" />
-              <div className="relative z-10">
-                {imageAssets.featureIcons[index] ? (
-                  <img 
-                    src={imageAssets.featureIcons[index]!} 
-                    alt={`Feature ${index + 1}`} 
-                    className="w-10 h-10 sm:w-12 sm:h-12 object-contain mb-3 sm:mb-4"
-                  />
-                ) : (
-                  <div 
-                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg mb-3 sm:mb-4 cursor-pointer hover:opacity-80 transition-opacity relative group/icon"
-                    style={{ backgroundColor: colors[index]?.hex || colorAssignment.accent }}
-                    onClick={(e) => handleElementClick('accent', e)}
-                    title="Click to change icon color"
-                  >
-                    <div className="absolute inset-0 bg-white bg-opacity-0 group-hover/icon:bg-opacity-10 rounded-lg transition-all duration-200" />
-                  </div>
-                )}
-                <h4 
-                  className="text-base sm:text-lg font-semibold mb-2 cursor-pointer hover:opacity-80 transition-opacity relative group/text"
-                  style={{ color: colorAssignment.text }}
-                  onClick={(e) => handleElementClick('text', e)}
-                  title="Click to change text color"
-                >
-                  <div className="absolute inset-0 bg-gray-500 bg-opacity-0 group-hover/text:bg-opacity-5 rounded transition-all duration-200" />
-                  <span className="relative z-10">{feature.title}</span>
-                </h4>
-                <p 
-                  className="text-sm sm:text-base cursor-pointer hover:opacity-80 transition-opacity relative group/desc"
-                  style={{ color: colorAssignment.textSecondary }}
-                  onClick={(e) => handleElementClick('textSecondary', e)}
-                  title="Click to change secondary text color"
-                >
-                  <div className="absolute inset-0 bg-gray-500 bg-opacity-0 group-hover/desc:bg-opacity-5 rounded transition-all duration-200" />
-                  <span className="relative z-10">{feature.description}</span>
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer 
-        className="p-4 sm:p-6 text-center cursor-pointer hover:opacity-90 transition-opacity relative group"
-        style={{ backgroundColor: colorAssignment.primary, color: 'white' }}
-        onClick={(e) => handleElementClick('primary', e)}
-        title="Click to change footer color"
-      >
-        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-5 transition-all duration-200 pointer-events-none" />
-        <p className="opacity-90 relative z-10 text-sm sm:text-base">
-          {customContent.footerText}
-        </p>
-      </footer>
-    </div>
-  );
-
-  const renderDesignPreview = () => (
-    <div className={`${containerClass} space-y-6`}>
-      {/* Logo Variations */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div 
-          className="aspect-square rounded-lg p-8 flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
-          style={{ backgroundColor: colorAssignment.background }}
-          onClick={(e) => handleElementClick('background', e)}
-        >
-          {imageAssets.logo ? (
-            <img src={imageAssets.logo} alt="Logo" className="max-w-full max-h-full object-contain" />
-          ) : (
-            <div 
-              className="w-16 h-16 rounded-full cursor-pointer hover:opacity-80 transition-opacity"
-              style={{ backgroundColor: colorAssignment.primary }}
-              onClick={(e) => handleElementClick('primary', e)}
-            />
-          )}
-        </div>
-        <div 
-          className="aspect-square rounded-lg p-8 flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
-          style={{ backgroundColor: colorAssignment.primary }}
-          onClick={(e) => handleElementClick('primary', e)}
-        >
-          {imageAssets.logo ? (
-            <img src={imageAssets.logo} alt="Logo" className="max-w-full max-h-full object-contain filter brightness-0 invert" />
-          ) : (
-            <div 
-              className="w-16 h-16 rounded-full"
-              style={{ backgroundColor: colorAssignment.background }}
-            />
-          )}
-        </div>
-        <div 
-          className="aspect-square rounded-lg p-8 flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
-          style={{ backgroundColor: colorAssignment.accent }}
-          onClick={(e) => handleElementClick('accent', e)}
-        >
-          {imageAssets.logo ? (
-            <img src={imageAssets.logo} alt="Logo" className="max-w-full max-h-full object-contain" />
-          ) : (
-            <div 
-              className="w-16 h-16 rounded-full"
-              style={{ backgroundColor: colorAssignment.background }}
-            />
-          )}
-        </div>
-      </div>
-
-      {/* Business Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div 
-          className="aspect-[1.75/1] rounded-lg p-6 cursor-pointer hover:opacity-90 transition-opacity relative"
-          style={{ backgroundColor: colorAssignment.primary }}
-          onClick={(e) => handleElementClick('primary', e)}
-        >
-          <div className="text-white">
-            <h3 className="text-lg font-bold mb-1">{customContent.brandName}</h3>
-            <p className="text-sm opacity-90 mb-4">{customContent.tagline}</p>
-            <div className="text-xs space-y-1">
-              <p>{customContent.websiteUrl}</p>
-              <p>{customContent.socialHandle}</p>
-            </div>
-          </div>
-        </div>
-        <div 
-          className="aspect-[1.75/1] rounded-lg p-6 border-2 cursor-pointer hover:opacity-90 transition-opacity"
-          style={{ 
-            backgroundColor: colorAssignment.background,
-            borderColor: colorAssignment.primary,
-            color: colorAssignment.text
-          }}
-          onClick={(e) => handleElementClick('background', e)}
-        >
-          <h3 className="text-lg font-bold mb-1">{customContent.brandName}</h3>
-          <p className="text-sm mb-4" style={{ color: colorAssignment.textSecondary }}>{customContent.tagline}</p>
-          <div className="text-xs space-y-1" style={{ color: colorAssignment.textSecondary }}>
-            <p>{customContent.websiteUrl}</p>
-            <p>{customContent.socialHandle}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Color Palette Display */}
-      <div 
-        className="rounded-lg p-6 cursor-pointer hover:opacity-95 transition-opacity"
-        style={{ backgroundColor: colorAssignment.surface }}
-        onClick={(e) => handleElementClick('surface', e)}
-      >
-        <h3 className="text-lg font-semibold mb-4" style={{ color: colorAssignment.text }}>Brand Colors</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
-          {Object.entries(colorAssignment).map(([key, color]) => (
-            <div key={key} className="text-center">
-              <div 
-                className="aspect-square rounded-lg mb-2 cursor-pointer hover:scale-105 transition-transform"
-                style={{ backgroundColor: color }}
-                onClick={(e) => handleElementClick(key, e)}
-              />
-              <p className="text-xs font-medium capitalize" style={{ color: colorAssignment.text }}>{key}</p>
-              <p className="text-xs font-mono" style={{ color: colorAssignment.textSecondary }}>{color}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderPatternPreview = () => (
-    <div className={`${containerClass} space-y-6`}>
-      {/* Geometric Patterns */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div 
-          className="aspect-square rounded-lg p-4 cursor-pointer hover:opacity-90 transition-opacity"
-          style={{ backgroundColor: colorAssignment.background }}
-          onClick={(e) => handleElementClick('background', e)}
-        >
-          <div className="w-full h-full grid grid-cols-4 gap-1">
-            {Array.from({ length: 16 }).map((_, i) => (
-              <div 
-                key={i}
-                className="aspect-square rounded cursor-pointer hover:opacity-80 transition-opacity"
-                style={{ 
-                  backgroundColor: i % 2 === 0 ? colorAssignment.primary : colorAssignment.accent 
-                }}
-                onClick={(e) => handleElementClick(i % 2 === 0 ? 'primary' : 'accent', e)}
-              />
-            ))}
-          </div>
-        </div>
-        
-        <div 
-          className="aspect-square rounded-lg p-4 cursor-pointer hover:opacity-90 transition-opacity"
-          style={{ backgroundColor: colorAssignment.surface }}
-          onClick={(e) => handleElementClick('surface', e)}
-        >
-          <div className="w-full h-full flex items-center justify-center">
-            <div className="grid grid-cols-3 gap-2">
-              {colors.slice(0, 9).map((color, i) => (
-                <div 
-                  key={i}
-                  className="w-8 h-8 rounded-full cursor-pointer hover:scale-110 transition-transform"
-                  style={{ backgroundColor: color.hex }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleElementClick('primary', e);
-                  }}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Gradient Patterns */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div 
-          className="aspect-[4/3] rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
-          style={{ 
-            background: `linear-gradient(45deg, ${colorAssignment.primary}, ${colorAssignment.secondary})` 
-          }}
-          onClick={(e) => handleElementClick('primary', e)}
-        />
-        <div 
-          className="aspect-[4/3] rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
-          style={{ 
-            background: `linear-gradient(135deg, ${colorAssignment.accent}, ${colorAssignment.primary})` 
-          }}
-          onClick={(e) => handleElementClick('accent', e)}
-        />
-        <div 
-          className="aspect-[4/3] rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
-          style={{ 
-            background: `radial-gradient(circle, ${colorAssignment.secondary}, ${colorAssignment.accent})` 
-          }}
-          onClick={(e) => handleElementClick('secondary', e)}
-        />
-      </div>
-
-      {/* Typography with Colors */}
-      <div 
-        className="rounded-lg p-6 cursor-pointer hover:opacity-95 transition-opacity"
-        style={{ backgroundColor: colorAssignment.background }}
-        onClick={(e) => handleElementClick('background', e)}
-      >
-        <h1 
-          className="text-4xl font-bold mb-4 cursor-pointer hover:opacity-80 transition-opacity"
-          style={{ color: colorAssignment.primary }}
-          onClick={(e) => handleElementClick('primary', e)}
-        >
-          {customContent.brandName}
-        </h1>
-        <h2 
-          className="text-2xl font-semibold mb-3 cursor-pointer hover:opacity-80 transition-opacity"
-          style={{ color: colorAssignment.secondary }}
-          onClick={(e) => handleElementClick('secondary', e)}
-        >
-          {customContent.tagline}
-        </h2>
-        <p 
-          className="text-lg mb-2 cursor-pointer hover:opacity-80 transition-opacity"
-          style={{ color: colorAssignment.text }}
-          onClick={(e) => handleElementClick('text', e)}
-        >
-          {customContent.heroDescription}
-        </p>
-        <p 
-          className="text-base cursor-pointer hover:opacity-80 transition-opacity"
-          style={{ color: colorAssignment.textSecondary }}
-          onClick={(e) => handleElementClick('textSecondary', e)}
-        >
-          Secondary text with perfect contrast ratios for accessibility.
-        </p>
-      </div>
-    </div>
-  );
-
-  const renderSocialPreview = () => {
-    const platformStyles = {
-      instagram: { aspectRatio: '1/1', maxWidth: '400px' },
-      facebook: { aspectRatio: '16/9', maxWidth: '500px' },
-      twitter: { aspectRatio: '16/9', maxWidth: '500px' },
-      linkedin: { aspectRatio: '1.91/1', maxWidth: '500px' }
-    };
-
-    const style = platformStyles[socialPlatform];
-
-    return (
-      <div className={`${containerClass} space-y-6`}>
-        {/* Platform Selector */}
-        <div className="flex flex-wrap gap-2 justify-center">
-          {socialPlatforms.map((platform) => (
-            <button
-              key={platform.id}
-              onClick={() => setSocialPlatform(platform.id)}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
-                socialPlatform === platform.id
-                  ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
-                  : `${textSecondary} ${buttonHover} hover:text-gray-900 dark:hover:text-gray-100`
-              }`}
-            >
-              {platform.icon}
-              <span className="text-sm">{platform.label}</span>
-            </button>
-          ))}
-        </div>
-
-        {/* Social Media Post */}
-        <div className="flex justify-center">
-          <div 
-            className="rounded-lg overflow-hidden shadow-lg cursor-pointer hover:opacity-95 transition-opacity"
-            style={{ 
-              aspectRatio: style.aspectRatio,
-              maxWidth: style.maxWidth,
-              width: '100%',
-              backgroundColor: colorAssignment.primary 
-            }}
-            onClick={(e) => handleElementClick('primary', e)}
-          >
-            <div className="relative w-full h-full">
-              {imageAssets.productImage ? (
-                <img 
-                  src={imageAssets.productImage} 
-                  alt="Product" 
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div 
-                  className="w-full h-full flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
-                  style={{ backgroundColor: colorAssignment.accent }}
-                  onClick={(e) => handleElementClick('accent', e)}
-                >
-                  <div className="text-center text-white">
-                    <h3 className="text-2xl font-bold mb-2">{customContent.brandName}</h3>
-                    <p className="text-lg">{customContent.tagline}</p>
-                  </div>
-                </div>
-              )}
-              
-              {/* Overlay Content */}
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6">
-                <h3 className="text-white text-xl font-bold mb-2">{customContent.brandName}</h3>
-                <p className="text-white/90 text-sm">{customContent.heroDescription}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Profile Card */}
-        <div 
-          className="max-w-md mx-auto rounded-lg p-6 cursor-pointer hover:opacity-95 transition-opacity"
-          style={{ backgroundColor: colorAssignment.background }}
-          onClick={(e) => handleElementClick('background', e)}
-        >
-          <div className="flex items-center space-x-4 mb-4">
-            {imageAssets.profileImage ? (
-              <img 
-                src={imageAssets.profileImage} 
-                alt="Profile" 
-                className="w-16 h-16 rounded-full object-cover"
-              />
-            ) : (
-              <div 
-                className="w-16 h-16 rounded-full cursor-pointer hover:opacity-80 transition-opacity"
-                style={{ backgroundColor: colorAssignment.primary }}
-                onClick={(e) => handleElementClick('primary', e)}
-              />
-            )}
-            <div>
-              <h3 
-                className="text-lg font-bold cursor-pointer hover:opacity-80 transition-opacity"
-                style={{ color: colorAssignment.text }}
-                onClick={(e) => handleElementClick('text', e)}
-              >
-                {customContent.brandName}
-              </h3>
-              <p 
-                className="text-sm cursor-pointer hover:opacity-80 transition-opacity"
-                style={{ color: colorAssignment.textSecondary }}
-                onClick={(e) => handleElementClick('textSecondary', e)}
-              >
-                {customContent.socialHandle}
-              </p>
-            </div>
-          </div>
-          <p 
-            className="text-sm mb-4 cursor-pointer hover:opacity-80 transition-opacity"
-            style={{ color: colorAssignment.text }}
-            onClick={(e) => handleElementClick('text', e)}
-          >
-            {customContent.heroDescription}
-          </p>
-          <button 
-            className="w-full py-2 px-4 rounded-lg text-white font-medium cursor-pointer hover:opacity-90 transition-opacity"
-            style={{ backgroundColor: colorAssignment.primary }}
-            onClick={(e) => handleElementClick('primary', e)}
-          >
-            Follow
-          </button>
-        </div>
-
-        {/* Story Highlights */}
-        <div className="flex justify-center space-x-4">
-          {colors.slice(0, 5).map((color, index) => (
-            <div key={index} className="text-center">
-              <div 
-                className="w-16 h-16 rounded-full p-1 cursor-pointer hover:scale-105 transition-transform"
-                style={{ backgroundColor: colorAssignment.accent }}
-                onClick={(e) => handleElementClick('accent', e)}
-              >
-                <div 
-                  className="w-full h-full rounded-full cursor-pointer hover:opacity-80 transition-opacity"
-                  style={{ backgroundColor: color.hex }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleElementClick('primary', e);
-                  }}
-                />
-              </div>
-              <p className="text-xs mt-1" style={{ color: colorAssignment.textSecondary }}>
-                Story {index + 1}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  };
-
-  const renderPreviewContent = () => {
-    switch (previewType) {
-      case 'web':
-        return renderWebPreview();
-      case 'design':
-        return renderDesignPreview();
-      case 'pattern':
-        return renderPatternPreview();
-      case 'social':
-        return renderSocialPreview();
-      default:
-        return renderWebPreview();
-    }
-  };
 
   return (
     <div className={`${panelBg} rounded-lg border ${panelBorder} p-4 sm:p-6 relative`} ref={previewContainerRef}>
@@ -977,43 +514,35 @@ export const BrandPreview: React.FC<BrandPreviewProps> = ({ colors, isDarkMode =
       )}
 
       {/* Header */}
-      <div className="flex flex-col space-y-4 mb-6">
-        <div className="flex items-center justify-between">
-          <h3 className={`text-lg font-semibold ${textPrimary}`}>Brand Preview Studio</h3>
-          
-          {/* Mobile Controls Toggle */}
-          <div className="sm:hidden">
-            <button
-              onClick={() => setShowMobileControls(!showMobileControls)}
-              className={`flex items-center justify-center space-x-2 px-4 py-2 ${buttonHover} rounded-lg transition-colors`}
-            >
-              <Settings className="w-4 h-4" />
-              <span>Controls</span>
-            </button>
-          </div>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 space-y-4 sm:space-y-0">
+        <h3 className={`text-lg font-semibold ${textPrimary}`}>Social Media Preview</h3>
+        
+        {/* Mobile Controls Toggle */}
+        <div className="sm:hidden">
+          <button
+            onClick={() => setShowMobileControls(!showMobileControls)}
+            className={`w-full flex items-center justify-center space-x-2 px-4 py-2 ${buttonHover} rounded-lg transition-colors`}
+          >
+            <Settings className="w-4 h-4" />
+            <span>Controls</span>
+          </button>
         </div>
 
-        {/* Preview Type Selector */}
-        <div className="flex flex-wrap gap-2">
-          {previewTypes.map((type) => (
-            <button
-              key={type.id}
-              onClick={() => setPreviewType(type.id)}
-              className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors text-sm ${
-                previewType === type.id
-                  ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
-                  : `${textSecondary} ${buttonHover} hover:text-gray-900 dark:hover:text-gray-100`
-              }`}
-            >
-              {type.icon}
-              <span className="hidden sm:inline">{type.label}</span>
-              <span className="sm:hidden">{type.shortLabel}</span>
-            </button>
-          ))}
-        </div>
+        {/* Desktop Controls */}
+        <div className={`${showMobileControls ? 'flex' : 'hidden'} sm:flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-2`}>
+          {/* Text Settings Toggle */}
+          <button
+            onClick={() => setShowTextSettings(!showTextSettings)}
+            className={`p-2 rounded-lg transition-colors ${
+              showTextSettings 
+                ? 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300' 
+                : `${textSecondary} ${buttonHover}`
+            }`}
+            title="Text settings"
+          >
+            <Type className="w-4 h-4" />
+          </button>
 
-        {/* Controls - Desktop and Mobile */}
-        <div className={`${showMobileControls ? 'flex' : 'hidden'} sm:flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-4`}>
           {/* Image Upload Toggle */}
           <button
             onClick={() => setShowImageUpload(!showImageUpload)}
@@ -1032,7 +561,7 @@ export const BrandPreview: React.FC<BrandPreviewProps> = ({ colors, isDarkMode =
             onClick={() => setShowContentEditor(!showContentEditor)}
             className={`p-2 rounded-lg transition-colors ${
               showContentEditor 
-                ? 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300' 
+                ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300' 
                 : `${textSecondary} ${buttonHover}`
             }`}
             title="Edit content"
@@ -1050,69 +579,243 @@ export const BrandPreview: React.FC<BrandPreviewProps> = ({ colors, isDarkMode =
             }`}
             title="Assign colors"
           >
-            <Settings className="w-4 h-4" />
+            <Square className="w-4 h-4" />
           </button>
-
-          {/* Reset Colors */}
-          <button
-            onClick={resetColors}
-            className={`p-2 rounded-lg transition-colors ${textSecondary} ${buttonHover}`}
-            title="Reset colors"
-          >
-            <RotateCcw className="w-4 h-4" />
-          </button>
-
-          {/* View Mode Toggle (only for web preview) */}
-          {previewType === 'web' && (
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={() => setViewMode('desktop')}
-                className={`p-2 rounded-lg transition-colors ${
-                  viewMode === 'desktop' 
-                    ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300' 
-                    : `${textSecondary} ${buttonHover}`
-                }`}
-              >
-                <Monitor className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setViewMode('mobile')}
-                className={`p-2 rounded-lg transition-colors ${
-                  viewMode === 'mobile' 
-                    ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300' 
-                    : `${textSecondary} ${buttonHover}`
-                }`}
-              >
-                <Smartphone className="w-4 h-4" />
-              </button>
-            </div>
-          )}
-
-          {/* Theme Toggle */}
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => setTheme('light')}
-              className={`p-2 rounded-lg transition-colors ${
-                theme === 'light' 
-                  ? 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900 dark:text-yellow-300' 
-                  : `${textSecondary} ${buttonHover}`
-              }`}
-            >
-              <Sun className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setTheme('dark')}
-              className={`p-2 rounded-lg transition-colors ${
-                theme === 'dark' 
-                  ? 'bg-gray-800 text-gray-200' 
-                  : `${textSecondary} ${buttonHover}`
-              }`}
-            >
-              <Moon className="w-4 h-4" />
-            </button>
-          </div>
         </div>
       </div>
+
+      {/* Text Settings Panel */}
+      {showTextSettings && (
+        <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+          <h4 className="text-sm font-medium text-green-900 dark:text-green-200 mb-4 flex items-center space-x-2">
+            <Type className="w-4 h-4" />
+            <span>Text Customization</span>
+          </h4>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            {/* Title Settings */}
+            <div className="space-y-3">
+              <h5 className="text-xs font-medium text-green-800 dark:text-green-300">Title Settings</h5>
+              
+              <div>
+                <label className="block text-xs text-green-700 dark:text-green-400 mb-1">
+                  Size: {textSettings.titleSize}px
+                </label>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => setTextSettings(prev => ({ ...prev, titleSize: Math.max(16, prev.titleSize - 2) }))}
+                    className="p-1 bg-green-100 dark:bg-green-800 rounded hover:bg-green-200 dark:hover:bg-green-700"
+                  >
+                    <Minus className="w-3 h-3" />
+                  </button>
+                  <input
+                    type="range"
+                    min="16"
+                    max="48"
+                    value={textSettings.titleSize}
+                    onChange={(e) => setTextSettings(prev => ({ ...prev, titleSize: parseInt(e.target.value) }))}
+                    className="flex-1"
+                  />
+                  <button
+                    onClick={() => setTextSettings(prev => ({ ...prev, titleSize: Math.min(48, prev.titleSize + 2) }))}
+                    className="p-1 bg-green-100 dark:bg-green-800 rounded hover:bg-green-200 dark:hover:bg-green-700"
+                  >
+                    <Plus className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-xs text-green-700 dark:text-green-400 mb-1">Weight</label>
+                  <select
+                    value={textSettings.titleWeight}
+                    onChange={(e) => setTextSettings(prev => ({ ...prev, titleWeight: e.target.value as any }))}
+                    className="w-full text-xs border border-green-300 dark:border-green-600 rounded px-2 py-1 bg-white dark:bg-gray-700"
+                  >
+                    <option value="normal">Normal</option>
+                    <option value="bold">Bold</option>
+                    <option value="black">Black</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-xs text-green-700 dark:text-green-400 mb-1">Style</label>
+                  <select
+                    value={textSettings.titleStyle}
+                    onChange={(e) => setTextSettings(prev => ({ ...prev, titleStyle: e.target.value as any }))}
+                    className="w-full text-xs border border-green-300 dark:border-green-600 rounded px-2 py-1 bg-white dark:bg-gray-700"
+                  >
+                    <option value="normal">Normal</option>
+                    <option value="italic">Italic</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs text-green-700 dark:text-green-400 mb-1">Alignment</label>
+                <div className="flex space-x-1">
+                  {[
+                    { value: 'left', icon: <AlignLeft className="w-3 h-3" /> },
+                    { value: 'center', icon: <AlignCenter className="w-3 h-3" /> },
+                    { value: 'right', icon: <AlignRight className="w-3 h-3" /> }
+                  ].map((align) => (
+                    <button
+                      key={align.value}
+                      onClick={() => setTextSettings(prev => ({ ...prev, titleAlign: align.value as any }))}
+                      className={`p-1 rounded ${
+                        textSettings.titleAlign === align.value
+                          ? 'bg-green-200 dark:bg-green-700'
+                          : 'bg-green-100 dark:bg-green-800 hover:bg-green-200 dark:hover:bg-green-700'
+                      }`}
+                    >
+                      {align.icon}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Subtitle Settings */}
+            <div className="space-y-3">
+              <h5 className="text-xs font-medium text-green-800 dark:text-green-300">Subtitle Settings</h5>
+              
+              <div>
+                <label className="block text-xs text-green-700 dark:text-green-400 mb-1">
+                  Size: {textSettings.subtitleSize}px
+                </label>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => setTextSettings(prev => ({ ...prev, subtitleSize: Math.max(12, prev.subtitleSize - 1) }))}
+                    className="p-1 bg-green-100 dark:bg-green-800 rounded hover:bg-green-200 dark:hover:bg-green-700"
+                  >
+                    <Minus className="w-3 h-3" />
+                  </button>
+                  <input
+                    type="range"
+                    min="12"
+                    max="32"
+                    value={textSettings.subtitleSize}
+                    onChange={(e) => setTextSettings(prev => ({ ...prev, subtitleSize: parseInt(e.target.value) }))}
+                    className="flex-1"
+                  />
+                  <button
+                    onClick={() => setTextSettings(prev => ({ ...prev, subtitleSize: Math.min(32, prev.subtitleSize + 1) }))}
+                    className="p-1 bg-green-100 dark:bg-green-800 rounded hover:bg-green-200 dark:hover:bg-green-700"
+                  >
+                    <Plus className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-xs text-green-700 dark:text-green-400 mb-1">Weight</label>
+                  <select
+                    value={textSettings.subtitleWeight}
+                    onChange={(e) => setTextSettings(prev => ({ ...prev, subtitleWeight: e.target.value as any }))}
+                    className="w-full text-xs border border-green-300 dark:border-green-600 rounded px-2 py-1 bg-white dark:bg-gray-700"
+                  >
+                    <option value="normal">Normal</option>
+                    <option value="bold">Bold</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-xs text-green-700 dark:text-green-400 mb-1">Style</label>
+                  <select
+                    value={textSettings.subtitleStyle}
+                    onChange={(e) => setTextSettings(prev => ({ ...prev, subtitleStyle: e.target.value as any }))}
+                    className="w-full text-xs border border-green-300 dark:border-green-600 rounded px-2 py-1 bg-white dark:bg-gray-700"
+                  >
+                    <option value="normal">Normal</option>
+                    <option value="italic">Italic</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs text-green-700 dark:text-green-400 mb-1">Alignment</label>
+                <div className="flex space-x-1">
+                  {[
+                    { value: 'left', icon: <AlignLeft className="w-3 h-3" /> },
+                    { value: 'center', icon: <AlignCenter className="w-3 h-3" /> },
+                    { value: 'right', icon: <AlignRight className="w-3 h-3" /> }
+                  ].map((align) => (
+                    <button
+                      key={align.value}
+                      onClick={() => setTextSettings(prev => ({ ...prev, subtitleAlign: align.value as any }))}
+                      className={`p-1 rounded ${
+                        textSettings.subtitleAlign === align.value
+                          ? 'bg-green-200 dark:bg-green-700'
+                          : 'bg-green-100 dark:bg-green-800 hover:bg-green-200 dark:hover:bg-green-700'
+                      }`}
+                    >
+                      {align.icon}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Description Settings */}
+            <div className="space-y-3">
+              <h5 className="text-xs font-medium text-green-800 dark:text-green-300">Description Settings</h5>
+              
+              <div>
+                <label className="block text-xs text-green-700 dark:text-green-400 mb-1">
+                  Size: {textSettings.descriptionSize}px
+                </label>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => setTextSettings(prev => ({ ...prev, descriptionSize: Math.max(10, prev.descriptionSize - 1) }))}
+                    className="p-1 bg-green-100 dark:bg-green-800 rounded hover:bg-green-200 dark:hover:bg-green-700"
+                  >
+                    <Minus className="w-3 h-3" />
+                  </button>
+                  <input
+                    type="range"
+                    min="10"
+                    max="24"
+                    value={textSettings.descriptionSize}
+                    onChange={(e) => setTextSettings(prev => ({ ...prev, descriptionSize: parseInt(e.target.value) }))}
+                    className="flex-1"
+                  />
+                  <button
+                    onClick={() => setTextSettings(prev => ({ ...prev, descriptionSize: Math.min(24, prev.descriptionSize + 1) }))}
+                    className="p-1 bg-green-100 dark:bg-green-800 rounded hover:bg-green-200 dark:hover:bg-green-700"
+                  >
+                    <Plus className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs text-green-700 dark:text-green-400 mb-1">Alignment</label>
+                <div className="flex space-x-1">
+                  {[
+                    { value: 'left', icon: <AlignLeft className="w-3 h-3" /> },
+                    { value: 'center', icon: <AlignCenter className="w-3 h-3" /> },
+                    { value: 'right', icon: <AlignRight className="w-3 h-3" /> }
+                  ].map((align) => (
+                    <button
+                      key={align.value}
+                      onClick={() => setTextSettings(prev => ({ ...prev, descriptionAlign: align.value as any }))}
+                      className={`p-1 rounded ${
+                        textSettings.descriptionAlign === align.value
+                          ? 'bg-green-200 dark:bg-green-700'
+                          : 'bg-green-100 dark:bg-green-800 hover:bg-green-200 dark:hover:bg-green-700'
+                      }`}
+                    >
+                      {align.icon}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Image Upload Panel */}
       {showImageUpload && (
@@ -1121,7 +824,7 @@ export const BrandPreview: React.FC<BrandPreviewProps> = ({ colors, isDarkMode =
             <Image className="w-4 h-4" />
             <span>Image Assets</span>
           </h4>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {/* Logo */}
             <div className="space-y-2">
               <label className="block text-xs font-medium text-orange-800 dark:text-orange-300">Logo</label>
@@ -1147,78 +850,159 @@ export const BrandPreview: React.FC<BrandPreviewProps> = ({ colors, isDarkMode =
               </div>
             </div>
 
-            {/* Hero Image */}
-            <div className="space-y-2">
-              <label className="block text-xs font-medium text-orange-800 dark:text-orange-300">Hero Image</label>
-              <div className="relative">
-                {imageAssets.heroImage ? (
-                  <div className="relative group">
-                    <img src={imageAssets.heroImage} alt="Hero" className="w-full h-16 object-cover bg-gray-100 dark:bg-gray-700 rounded border" />
+            {/* Product Images */}
+            {customContent.posts.map((_, index) => (
+              <div key={index} className="space-y-2">
+                <label className="block text-xs font-medium text-orange-800 dark:text-orange-300">
+                  Post {index + 1} Image
+                </label>
+                <div className="relative">
+                  {imageAssets.productImages[index] ? (
+                    <div className="relative group">
+                      <img 
+                        src={imageAssets.productImages[index]!} 
+                        alt={`Product ${index + 1}`} 
+                        className="w-full h-16 object-cover bg-gray-100 dark:bg-gray-700 rounded border" 
+                      />
+                      <button
+                        onClick={() => removeImage(`productImage-${index}`)}
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ) : (
                     <button
-                      onClick={() => removeImage('heroImage')}
-                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => openImageUpload(`productImage-${index}`)}
+                      className="w-full h-16 border-2 border-dashed border-orange-300 dark:border-orange-600 rounded flex items-center justify-center hover:border-orange-400 dark:hover:border-orange-500 transition-colors"
                     >
-                      <X className="w-3 h-3" />
+                      <Upload className="w-4 h-4 text-orange-500" />
                     </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => openImageUpload('heroImage')}
-                    className="w-full h-16 border-2 border-dashed border-orange-300 dark:border-orange-600 rounded flex items-center justify-center hover:border-orange-400 dark:hover:border-orange-500 transition-colors"
-                  >
-                    <Upload className="w-4 h-4 text-orange-500" />
-                  </button>
-                )}
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Content Editor Panel */}
+      {showContentEditor && (
+        <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+          <h4 className="text-sm font-medium text-blue-900 dark:text-blue-200 mb-4 flex items-center space-x-2">
+            <Edit3 className="w-4 h-4" />
+            <span>Content Editor</span>
+          </h4>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+            {/* Brand Info */}
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-medium text-blue-800 dark:text-blue-300 mb-1">Brand Name</label>
+                <input
+                  type="text"
+                  value={customContent.brandName}
+                  onChange={(e) => setCustomContent(prev => ({ ...prev, brandName: e.target.value }))}
+                  className="w-full text-sm border border-blue-300 dark:border-blue-600 rounded px-2 py-1 bg-white dark:bg-gray-700"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-blue-800 dark:text-blue-300 mb-1">Tagline</label>
+                <input
+                  type="text"
+                  value={customContent.tagline}
+                  onChange={(e) => setCustomContent(prev => ({ ...prev, tagline: e.target.value }))}
+                  className="w-full text-sm border border-blue-300 dark:border-blue-600 rounded px-2 py-1 bg-white dark:bg-gray-700"
+                />
               </div>
             </div>
 
-            {/* Profile Image */}
-            <div className="space-y-2">
-              <label className="block text-xs font-medium text-orange-800 dark:text-orange-300">Profile Image</label>
-              <div className="relative">
-                {imageAssets.profileImage ? (
-                  <div className="relative group">
-                    <img src={imageAssets.profileImage} alt="Profile" className="w-full h-16 object-cover bg-gray-100 dark:bg-gray-700 rounded border" />
-                    <button
-                      onClick={() => removeImage('profileImage')}
-                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => openImageUpload('profileImage')}
-                    className="w-full h-16 border-2 border-dashed border-orange-300 dark:border-orange-600 rounded flex items-center justify-center hover:border-orange-400 dark:hover:border-orange-500 transition-colors"
-                  >
-                    <Upload className="w-4 h-4 text-orange-500" />
-                  </button>
-                )}
+            {/* Social Info */}
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-medium text-blue-800 dark:text-blue-300 mb-1">Social Handle</label>
+                <input
+                  type="text"
+                  value={customContent.socialHandle}
+                  onChange={(e) => setCustomContent(prev => ({ ...prev, socialHandle: e.target.value }))}
+                  className="w-full text-sm border border-blue-300 dark:border-blue-600 rounded px-2 py-1 bg-white dark:bg-gray-700"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-blue-800 dark:text-blue-300 mb-1">Website</label>
+                <input
+                  type="text"
+                  value={customContent.website}
+                  onChange={(e) => setCustomContent(prev => ({ ...prev, website: e.target.value }))}
+                  className="w-full text-sm border border-blue-300 dark:border-blue-600 rounded px-2 py-1 bg-white dark:bg-gray-700"
+                />
               </div>
             </div>
+          </div>
 
-            {/* Product Image */}
-            <div className="space-y-2">
-              <label className="block text-xs font-medium text-orange-800 dark:text-orange-300">Product Image</label>
-              <div className="relative">
-                {imageAssets.productImage ? (
-                  <div className="relative group">
-                    <img src={imageAssets.productImage} alt="Product" className="w-full h-16 object-cover bg-gray-100 dark:bg-gray-700 rounded border" />
-                    <button
-                      onClick={() => removeImage('productImage')}
-                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => openImageUpload('productImage')}
-                    className="w-full h-16 border-2 border-dashed border-orange-300 dark:border-orange-600 rounded flex items-center justify-center hover:border-orange-400 dark:hover:border-orange-500 transition-colors"
-                  >
-                    <Upload className="w-4 h-4 text-orange-500" />
-                  </button>
-                )}
+          {/* Post Content */}
+          <div>
+            <label className="block text-xs font-medium text-blue-800 dark:text-blue-300 mb-2">
+              Post Content (Currently editing: Post {selectedPost + 1})
+            </label>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <input
+                  type="text"
+                  placeholder="Post Title"
+                  value={customContent.posts[selectedPost].title}
+                  onChange={(e) => {
+                    const newPosts = [...customContent.posts];
+                    newPosts[selectedPost].title = e.target.value;
+                    setCustomContent(prev => ({ ...prev, posts: newPosts }));
+                  }}
+                  className="w-full text-xs border border-blue-300 dark:border-blue-600 rounded px-2 py-1 bg-white dark:bg-gray-700"
+                />
+                <input
+                  type="text"
+                  placeholder="Subtitle"
+                  value={customContent.posts[selectedPost].subtitle}
+                  onChange={(e) => {
+                    const newPosts = [...customContent.posts];
+                    newPosts[selectedPost].subtitle = e.target.value;
+                    setCustomContent(prev => ({ ...prev, posts: newPosts }));
+                  }}
+                  className="w-full text-xs border border-blue-300 dark:border-blue-600 rounded px-2 py-1 bg-white dark:bg-gray-700"
+                />
+                <input
+                  type="text"
+                  placeholder="Call to Action"
+                  value={customContent.posts[selectedPost].callToAction}
+                  onChange={(e) => {
+                    const newPosts = [...customContent.posts];
+                    newPosts[selectedPost].callToAction = e.target.value;
+                    setCustomContent(prev => ({ ...prev, posts: newPosts }));
+                  }}
+                  className="w-full text-xs border border-blue-300 dark:border-blue-600 rounded px-2 py-1 bg-white dark:bg-gray-700"
+                />
+              </div>
+              <div className="space-y-2">
+                <textarea
+                  placeholder="Description"
+                  value={customContent.posts[selectedPost].description}
+                  onChange={(e) => {
+                    const newPosts = [...customContent.posts];
+                    newPosts[selectedPost].description = e.target.value;
+                    setCustomContent(prev => ({ ...prev, posts: newPosts }));
+                  }}
+                  className="w-full text-xs border border-blue-300 dark:border-blue-600 rounded px-2 py-1 h-16 resize-none bg-white dark:bg-gray-700"
+                />
+                <input
+                  type="text"
+                  placeholder="Hashtags"
+                  value={customContent.posts[selectedPost].hashtags}
+                  onChange={(e) => {
+                    const newPosts = [...customContent.posts];
+                    newPosts[selectedPost].hashtags = e.target.value;
+                    setCustomContent(prev => ({ ...prev, posts: newPosts }));
+                  }}
+                  className="w-full text-xs border border-blue-300 dark:border-blue-600 rounded px-2 py-1 bg-white dark:bg-gray-700"
+                />
               </div>
             </div>
           </div>
@@ -1232,46 +1016,29 @@ export const BrandPreview: React.FC<BrandPreviewProps> = ({ colors, isDarkMode =
             <Square className="w-4 h-4" />
             <span>Color Assignment</span>
           </h4>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {assignableElements.map((element) => (
-              <div key={element.key} className="space-y-2">
-                <label className="block text-xs font-medium text-purple-800 dark:text-purple-300">
-                  {element.label}
-                  <span className="block text-purple-600 dark:text-purple-400 font-normal">{element.description}</span>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            {Object.entries(colorAssignment).map(([key, value]) => (
+              <div key={key} className="space-y-2">
+                <label className="block text-xs font-medium text-purple-800 dark:text-purple-300 capitalize">
+                  {key.replace(/([A-Z])/g, ' $1').trim()}
                 </label>
                 <div className="flex items-center space-x-2">
                   <div 
-                    className="w-6 h-6 rounded border border-purple-300 dark:border-purple-600 flex-shrink-0 cursor-pointer hover:scale-110 transition-transform"
-                    style={{ backgroundColor: colorAssignment[element.key as keyof ColorAssignment] }}
-                    onClick={() => copyToClipboard(colorAssignment[element.key as keyof ColorAssignment])}
-                    title="Click to copy color"
+                    className="w-6 h-6 rounded border border-purple-300 dark:border-purple-600 flex-shrink-0"
+                    style={{ backgroundColor: value }}
                   />
                   <select
-                    value={colorAssignment[element.key as keyof ColorAssignment]}
-                    onChange={(e) => setColorAssignment(prev => ({ ...prev, [element.key]: e.target.value }))}
-                    className="flex-1 text-xs border border-purple-300 dark:border-purple-600 rounded px-2 py-1 bg-white dark:bg-gray-700 dark:text-gray-200 min-w-0"
+                    value={value}
+                    onChange={(e) => setColorAssignment(prev => ({ ...prev, [key]: e.target.value }))}
+                    className="flex-1 text-xs border border-purple-300 dark:border-purple-600 rounded px-2 py-1 bg-white dark:bg-gray-700 min-w-0"
                   >
-                    <option value={colorAssignment[element.key as keyof ColorAssignment]}>Current</option>
+                    <option value={value}>Current</option>
                     {colors.map((color, index) => (
                       <option key={color.hex} value={color.hex}>
-                        Color {index + 1} ({color.hex})
+                        Color {index + 1}
                       </option>
                     ))}
-                    {element.key.includes('background') || element.key.includes('surface') || element.key.includes('text') ? (
-                      <>
-                        <option value="#FFFFFF">White</option>
-                        <option value="#F9FAFB">Light Gray</option>
-                        <option value="#374151">Dark Gray</option>
-                        <option value="#1F2937">Dark</option>
-                        <option value="#111827">Black</option>
-                      </>
-                    ) : null}
                   </select>
-                  {copiedText === colorAssignment[element.key as keyof ColorAssignment] ? (
-                    <Check className="w-4 h-4 text-green-500" />
-                  ) : (
-                    <Copy className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-                  )}
                 </div>
               </div>
             ))}
@@ -1279,114 +1046,58 @@ export const BrandPreview: React.FC<BrandPreviewProps> = ({ colors, isDarkMode =
         </div>
       )}
 
-      {/* Content Editor Panel */}
-      {showContentEditor && (
-        <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-          <h4 className="text-sm font-medium text-green-900 dark:text-green-200 mb-3 flex items-center space-x-2">
-            <Type className="w-4 h-4" />
-            <span>Content Editor</span>
-          </h4>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div className="space-y-3">
-              <div>
-                <label className="block text-xs font-medium text-green-800 dark:text-green-300 mb-1">Brand Name</label>
-                <input
-                  type="text"
-                  value={customContent.brandName}
-                  onChange={(e) => setCustomContent(prev => ({ ...prev, brandName: e.target.value }))}
-                  className="w-full text-sm border border-green-300 dark:border-green-600 rounded px-2 py-1 bg-white dark:bg-gray-700 dark:text-gray-200"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-green-800 dark:text-green-300 mb-1">Tagline</label>
-                <input
-                  type="text"
-                  value={customContent.tagline}
-                  onChange={(e) => setCustomContent(prev => ({ ...prev, tagline: e.target.value }))}
-                  className="w-full text-sm border border-green-300 dark:border-green-600 rounded px-2 py-1 bg-white dark:bg-gray-700 dark:text-gray-200"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-green-800 dark:text-green-300 mb-1">Hero Title</label>
-                <input
-                  type="text"
-                  value={customContent.heroTitle}
-                  onChange={(e) => setCustomContent(prev => ({ ...prev, heroTitle: e.target.value }))}
-                  className="w-full text-sm border border-green-300 dark:border-green-600 rounded px-2 py-1 bg-white dark:bg-gray-700 dark:text-gray-200"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-green-800 dark:text-green-300 mb-1">Hero Description</label>
-                <textarea
-                  value={customContent.heroDescription}
-                  onChange={(e) => setCustomContent(prev => ({ ...prev, heroDescription: e.target.value }))}
-                  className="w-full text-sm border border-green-300 dark:border-green-600 rounded px-2 py-1 h-16 resize-none bg-white dark:bg-gray-700 dark:text-gray-200"
-                />
-              </div>
-            </div>
-            <div className="space-y-3">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-xs font-medium text-green-800 dark:text-green-300 mb-1">Primary Button</label>
-                  <input
-                    type="text"
-                    value={customContent.primaryButtonText}
-                    onChange={(e) => setCustomContent(prev => ({ ...prev, primaryButtonText: e.target.value }))}
-                    className="w-full text-sm border border-green-300 dark:border-green-600 rounded px-2 py-1 bg-white dark:bg-gray-700 dark:text-gray-200"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-green-800 dark:text-green-300 mb-1">Secondary Button</label>
-                  <input
-                    type="text"
-                    value={customContent.secondaryButtonText}
-                    onChange={(e) => setCustomContent(prev => ({ ...prev, secondaryButtonText: e.target.value }))}
-                    className="w-full text-sm border border-green-300 dark:border-green-600 rounded px-2 py-1 bg-white dark:bg-gray-700 dark:text-gray-200"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-green-800 dark:text-green-300 mb-1">Social Handle</label>
-                <input
-                  type="text"
-                  value={customContent.socialHandle}
-                  onChange={(e) => setCustomContent(prev => ({ ...prev, socialHandle: e.target.value }))}
-                  className="w-full text-sm border border-green-300 dark:border-green-600 rounded px-2 py-1 bg-white dark:bg-gray-700 dark:text-gray-200"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-green-800 dark:text-green-300 mb-1">Website URL</label>
-                <input
-                  type="text"
-                  value={customContent.websiteUrl}
-                  onChange={(e) => setCustomContent(prev => ({ ...prev, websiteUrl: e.target.value }))}
-                  className="w-full text-sm border border-green-300 dark:border-green-600 rounded px-2 py-1 bg-white dark:bg-gray-700 dark:text-gray-200"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-green-800 dark:text-green-300 mb-1">Footer Text</label>
-                <input
-                  type="text"
-                  value={customContent.footerText}
-                  onChange={(e) => setCustomContent(prev => ({ ...prev, footerText: e.target.value }))}
-                  className="w-full text-sm border border-green-300 dark:border-green-600 rounded px-2 py-1 bg-white dark:bg-gray-700 dark:text-gray-200"
-                />
-              </div>
-            </div>
-          </div>
+      {/* Platform Selection */}
+      <div className="mb-6">
+        <h4 className={`text-sm font-medium ${textPrimary} mb-3`}>Platform</h4>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          {platforms.map((platform) => (
+            <button
+              key={platform.id}
+              onClick={() => setSelectedPlatform(platform.id as any)}
+              className={`flex items-center justify-center space-x-2 px-3 py-2 rounded-lg border transition-colors ${
+                selectedPlatform === platform.id
+                  ? 'bg-blue-100 border-blue-300 text-blue-700 dark:bg-blue-900 dark:border-blue-600 dark:text-blue-300'
+                  : `border-gray-300 dark:border-gray-600 ${textSecondary} ${buttonHover}`
+              }`}
+            >
+              {platform.icon}
+              <span className="text-sm">{platform.name}</span>
+            </button>
+          ))}
         </div>
-      )}
+      </div>
+
+      {/* Post Selection */}
+      <div className="mb-6">
+        <h4 className={`text-sm font-medium ${textPrimary} mb-3`}>Post Variations</h4>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          {customContent.posts.map((post, index) => (
+            <button
+              key={index}
+              onClick={() => setSelectedPost(index)}
+              className={`p-3 rounded-lg border transition-colors text-left ${
+                selectedPost === index
+                  ? 'bg-green-100 border-green-300 text-green-700 dark:bg-green-900 dark:border-green-600 dark:text-green-300'
+                  : `border-gray-300 dark:border-gray-600 ${textSecondary} ${buttonHover}`
+              }`}
+            >
+              <div className="text-xs font-medium truncate">{post.title}</div>
+              <div className="text-xs opacity-75 truncate">{post.subtitle}</div>
+            </button>
+          ))}
+        </div>
+      </div>
 
       {/* Instructions */}
       <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
         <p className="text-xs text-blue-800 dark:text-blue-200">
-          💡 <strong>Tip:</strong> Click on any colored element in the preview below to change its color instantly! The color picker will appear next to the element you click.
+          💡 <strong>Tip:</strong> Click on any colored element in the social media post to change its color instantly! Use the text settings to customize font sizes and styles.
         </p>
       </div>
 
-      {/* Preview Container */}
-      <div className="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
-        {renderPreviewContent()}
+      {/* Social Media Post Preview */}
+      <div className="flex justify-center">
+        {renderSocialMediaPost()}
       </div>
     </div>
   );
