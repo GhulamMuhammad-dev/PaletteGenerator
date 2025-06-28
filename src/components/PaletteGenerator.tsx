@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Palette, RefreshCw, Settings, HelpCircle, Moon, Sun, Brain, Menu, X } from 'lucide-react';
+import { Palette, RefreshCw, Settings, HelpCircle, Moon, Sun, Brain, Menu, X, LogOut, User } from 'lucide-react';
+import { UserButton, useUser } from '@clerk/clerk-react';
 import { ColorPicker } from './ColorPicker';
 import { ColorDisplay } from './ColorDisplay';
 import { AccessibilityChecker } from './AccessibilityChecker';
@@ -12,6 +13,7 @@ import { BrandStrategy } from '../types/ai';
 import { generateColorHarmony, generatePaletteName, adjustColor } from '../utils/colorUtils';
 
 export const PaletteGenerator: React.FC = () => {
+  const { user } = useUser();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [baseColor, setBaseColor] = useState('#3B82F6');
   const [harmonyType, setHarmonyType] = useState<HarmonyType>('analogous');
@@ -30,6 +32,7 @@ export const PaletteGenerator: React.FC = () => {
   const [brandStrategy, setBrandStrategy] = useState<BrandStrategy | null>(null);
   const [showBrandForm, setShowBrandForm] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const [colorAdjustments, setColorAdjustments] = useState({
     hue: 0,
     saturation: 0,
@@ -116,6 +119,18 @@ export const PaletteGenerator: React.FC = () => {
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [activeTab]);
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showUserMenu && !(event.target as Element).closest('.user-menu')) {
+        setShowUserMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showUserMenu]);
 
   const regeneratePalette = () => {
     // Trigger regeneration by slightly modifying base color
@@ -214,6 +229,18 @@ export const PaletteGenerator: React.FC = () => {
               >
                 {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
               </button>
+
+              {/* User Menu */}
+              <div className="relative user-menu">
+                <UserButton 
+                  appearance={{
+                    elements: {
+                      avatarBox: "w-8 h-8"
+                    }
+                  }}
+                  afterSignOutUrl="/"
+                />
+              </div>
 
               {/* Desktop Navigation */}
               <nav className="hidden lg:flex space-x-1">

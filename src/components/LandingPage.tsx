@@ -17,11 +17,20 @@ import {
   ChevronDown,
   Menu,
   X,
-  ExternalLink
+  ExternalLink,
+  Moon,
+  Sun
 } from 'lucide-react';
 
 export const LandingPage: React.FC = () => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    // Check for saved theme preference or default to light mode
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('darkMode');
+      return saved ? JSON.parse(saved) : false;
+    }
+    return false;
+  });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
 
@@ -29,6 +38,16 @@ export const LandingPage: React.FC = () => {
   const [demoColors, setDemoColors] = useState([
     '#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6'
   ]);
+
+  // Save theme preference and apply to document
+  useEffect(() => {
+    localStorage.setItem('darkMode', JSON.stringify(isDarkMode));
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -196,6 +215,20 @@ export const LandingPage: React.FC = () => {
               >
                 Reviews
               </button>
+              
+              {/* Dark Mode Toggle */}
+              <button
+                onClick={() => setIsDarkMode(!isDarkMode)}
+                className={`p-2 rounded-lg transition-colors ${
+                  isDarkMode 
+                    ? 'bg-gray-800 text-yellow-400 hover:bg-gray-700' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-900'
+                }`}
+                title={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+              >
+                {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              </button>
+
               <SignInButton mode="modal">
                 <button className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
                   Sign In
@@ -243,6 +276,22 @@ export const LandingPage: React.FC = () => {
                 >
                   Reviews
                 </button>
+                
+                {/* Mobile Dark Mode Toggle */}
+                <div className="px-4">
+                  <button
+                    onClick={() => setIsDarkMode(!isDarkMode)}
+                    className={`w-full flex items-center justify-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+                      isDarkMode 
+                        ? 'bg-gray-800 text-yellow-400 hover:bg-gray-700' 
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                    <span>{isDarkMode ? 'Light Mode' : 'Dark Mode'}</span>
+                  </button>
+                </div>
+
                 <div className="px-4 space-y-2">
                   <SignInButton mode="modal">
                     <button className="w-full px-4 py-2 text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
@@ -283,7 +332,7 @@ export const LandingPage: React.FC = () => {
                 </SignUpButton>
                 <button 
                   onClick={() => scrollToSection('demo')}
-                  className="px-8 py-4 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:border-gray-400 dark:hover:border-gray-500 transition-all flex items-center justify-center space-x-2 text-lg font-semibold"
+                  className="px-8 py-4 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all flex items-center justify-center space-x-2 text-lg font-semibold"
                 >
                   <span>See Demo</span>
                   <Eye className="w-5 h-5" />
