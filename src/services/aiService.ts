@@ -5,6 +5,7 @@ import { HarmonyType } from '../types/color';
 class AIService {
   private openai: OpenAI | null = null;
   private isInitialized = false;
+  private deploymentName: string = '';
 
   constructor() {
     this.initializeOpenAI();
@@ -13,6 +14,7 @@ class AIService {
   private initializeOpenAI() {
     const apiKey = import.meta.env.VITE_AZURE_OPENAI_API_KEY;
     const endpoint = import.meta.env.VITE_AZURE_OPENAI_ENDPOINT;
+    const deploymentName = import.meta.env.VITE_AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-4';
 
     if (!apiKey || !endpoint) {
       console.warn('Azure OpenAI credentials not found. AI features will be disabled.');
@@ -29,6 +31,7 @@ class AIService {
         },
         dangerouslyAllowBrowser: true
       });
+      this.deploymentName = deploymentName;
       this.isInitialized = true;
     } catch (error) {
       console.error('Failed to initialize Azure OpenAI:', error);
@@ -48,7 +51,7 @@ class AIService {
 
     try {
       const response = await this.openai!.chat.completions.create({
-        model: 'gpt-4',
+        model: this.deploymentName,
         messages: [
           {
             role: 'system',
@@ -103,7 +106,7 @@ class AIService {
 
     try {
       const response = await this.openai!.chat.completions.create({
-        model: 'gpt-4',
+        model: this.deploymentName,
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.5,
         max_tokens: 200
