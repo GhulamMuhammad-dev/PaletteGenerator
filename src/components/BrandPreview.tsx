@@ -50,6 +50,7 @@ export const BrandPreview: React.FC<BrandPreviewProps> = ({ colors, isDarkMode =
   const [showColorAssignment, setShowColorAssignment] = useState(false);
   const [showContentEditor, setShowContentEditor] = useState(false);
   const [showImageUpload, setShowImageUpload] = useState(false);
+  const [showMobileControls, setShowMobileControls] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [currentImageTarget, setCurrentImageTarget] = useState<string>('');
   const previewContainerRef = useRef<HTMLDivElement>(null);
@@ -260,7 +261,7 @@ export const BrandPreview: React.FC<BrandPreviewProps> = ({ colors, isDarkMode =
   }
 
   return (
-    <div className={`${panelBg} rounded-lg border ${panelBorder} p-6 relative`} ref={previewContainerRef}>
+    <div className={`${panelBg} rounded-lg border ${panelBorder} p-4 sm:p-6 relative`} ref={previewContainerRef}>
       {/* Hidden file input */}
       <input
         ref={fileInputRef}
@@ -325,10 +326,22 @@ export const BrandPreview: React.FC<BrandPreviewProps> = ({ colors, isDarkMode =
       )}
 
       {/* Controls */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 space-y-4 sm:space-y-0">
         <h3 className={`text-lg font-semibold ${textPrimary}`}>Brand Preview</h3>
         
-        <div className="flex items-center space-x-4">
+        {/* Mobile Controls Toggle */}
+        <div className="sm:hidden">
+          <button
+            onClick={() => setShowMobileControls(!showMobileControls)}
+            className={`w-full flex items-center justify-center space-x-2 px-4 py-2 ${buttonHover} rounded-lg transition-colors`}
+          >
+            <Settings className="w-4 h-4" />
+            <span>Controls</span>
+          </button>
+        </div>
+
+        {/* Desktop Controls */}
+        <div className={`${showMobileControls ? 'flex' : 'hidden'} sm:flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-4`}>
           {/* Image Upload Toggle */}
           <button
             onClick={() => setShowImageUpload(!showImageUpload)}
@@ -515,7 +528,7 @@ export const BrandPreview: React.FC<BrandPreviewProps> = ({ colors, isDarkMode =
             <Square className="w-4 h-4" />
             <span>Color Assignment</span>
           </h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {assignableElements.map((element) => (
               <div key={element.key} className="space-y-2">
                 <label className="block text-xs font-medium text-purple-800 dark:text-purple-300">
@@ -524,13 +537,13 @@ export const BrandPreview: React.FC<BrandPreviewProps> = ({ colors, isDarkMode =
                 </label>
                 <div className="flex items-center space-x-2">
                   <div 
-                    className="w-6 h-6 rounded border border-purple-300 dark:border-purple-600"
+                    className="w-6 h-6 rounded border border-purple-300 dark:border-purple-600 flex-shrink-0"
                     style={{ backgroundColor: colorAssignment[element.key as keyof ColorAssignment] }}
                   />
                   <select
                     value={colorAssignment[element.key as keyof ColorAssignment]}
                     onChange={(e) => setColorAssignment(prev => ({ ...prev, [element.key]: e.target.value }))}
-                    className="flex-1 text-xs border border-purple-300 dark:border-purple-600 rounded px-2 py-1 bg-white dark:bg-gray-700 dark:text-gray-200"
+                    className="flex-1 text-xs border border-purple-300 dark:border-purple-600 rounded px-2 py-1 bg-white dark:bg-gray-700 dark:text-gray-200 min-w-0"
                   >
                     <option value={colorAssignment[element.key as keyof ColorAssignment]}>Current</option>
                     {colors.map((color, index) => (
@@ -562,7 +575,7 @@ export const BrandPreview: React.FC<BrandPreviewProps> = ({ colors, isDarkMode =
             <Type className="w-4 h-4" />
             <span>Content Editor</span>
           </h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div className="space-y-3">
               <div>
                 <label className="block text-xs font-medium text-green-800 dark:text-green-300 mb-1">Brand Name</label>
@@ -592,7 +605,7 @@ export const BrandPreview: React.FC<BrandPreviewProps> = ({ colors, isDarkMode =
               </div>
             </div>
             <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
                   <label className="block text-xs font-medium text-green-800 dark:text-green-300 mb-1">Primary Button</label>
                   <input
@@ -636,7 +649,7 @@ export const BrandPreview: React.FC<BrandPreviewProps> = ({ colors, isDarkMode =
           {/* Features Editor */}
           <div className="mt-4">
             <label className="block text-xs font-medium text-green-800 dark:text-green-300 mb-2">Features</label>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
               {customContent.features.map((feature, index) => (
                 <div key={index} className="space-y-1">
                   <input
@@ -682,7 +695,7 @@ export const BrandPreview: React.FC<BrandPreviewProps> = ({ colors, isDarkMode =
         >
           {/* Header */}
           <header 
-            className="p-6 text-white cursor-pointer hover:opacity-90 transition-opacity relative group"
+            className="p-4 sm:p-6 text-white cursor-pointer hover:opacity-90 transition-opacity relative group"
             style={{ backgroundColor: colorAssignment.primary }}
             onClick={(e) => handleElementClick('primary', e)}
             title="Click to change header color"
@@ -691,10 +704,10 @@ export const BrandPreview: React.FC<BrandPreviewProps> = ({ colors, isDarkMode =
             <div className={`flex items-center justify-between ${viewMode === 'mobile' ? 'flex-col space-y-4' : ''} relative z-10`}>
               <div className="flex items-center space-x-3">
                 {imageAssets.logo ? (
-                  <img src={imageAssets.logo} alt="Logo" className="w-8 h-8 object-contain" />
+                  <img src={imageAssets.logo} alt="Logo" className="w-6 h-6 sm:w-8 sm:h-8 object-contain" />
                 ) : (
                   <div 
-                    className="w-8 h-8 rounded-full cursor-pointer hover:opacity-80 transition-opacity relative group/accent"
+                    className="w-6 h-6 sm:w-8 sm:h-8 rounded-full cursor-pointer hover:opacity-80 transition-opacity relative group/accent"
                     style={{ backgroundColor: colorAssignment.accent }}
                     onClick={(e) => handleElementClick('accent', e)}
                     title="Click to change accent color"
@@ -702,26 +715,26 @@ export const BrandPreview: React.FC<BrandPreviewProps> = ({ colors, isDarkMode =
                     <div className="absolute inset-0 bg-white bg-opacity-0 group-hover/accent:bg-opacity-10 rounded-full transition-all duration-200" />
                   </div>
                 )}
-                <h1 className="text-xl font-bold">{customContent.brandName}</h1>
+                <h1 className="text-lg sm:text-xl font-bold">{customContent.brandName}</h1>
               </div>
               
               {viewMode === 'desktop' && (
-                <nav className="flex space-x-6">
-                  <a href="#" className="hover:opacity-80 transition-opacity">Home</a>
-                  <a href="#" className="hover:opacity-80 transition-opacity">About</a>
-                  <a href="#" className="hover:opacity-80 transition-opacity">Services</a>
-                  <a href="#" className="hover:opacity-80 transition-opacity">Contact</a>
+                <nav className="flex space-x-4 sm:space-x-6">
+                  <a href="#" className="hover:opacity-80 transition-opacity text-sm sm:text-base">Home</a>
+                  <a href="#" className="hover:opacity-80 transition-opacity text-sm sm:text-base">About</a>
+                  <a href="#" className="hover:opacity-80 transition-opacity text-sm sm:text-base">Services</a>
+                  <a href="#" className="hover:opacity-80 transition-opacity text-sm sm:text-base">Contact</a>
                 </nav>
               )}
             </div>
           </header>
 
           {/* Hero Section */}
-          <section className="p-6">
-            <div className={`${viewMode === 'mobile' ? 'text-center' : 'grid grid-cols-2 gap-8 items-center'}`}>
+          <section className="p-4 sm:p-6">
+            <div className={`${viewMode === 'mobile' ? 'text-center' : 'grid grid-cols-1 lg:grid-cols-2 gap-8 items-center'}`}>
               <div>
                 <h2 
-                  className="text-3xl font-bold mb-4 cursor-pointer hover:opacity-80 transition-opacity relative group"
+                  className="text-2xl sm:text-3xl font-bold mb-4 cursor-pointer hover:opacity-80 transition-opacity relative group"
                   style={{ color: colorAssignment.text }}
                   onClick={(e) => handleElementClick('text', e)}
                   title="Click to change text color"
@@ -730,7 +743,7 @@ export const BrandPreview: React.FC<BrandPreviewProps> = ({ colors, isDarkMode =
                   <span className="relative z-10">{customContent.heroTitle}</span>
                 </h2>
                 <p 
-                  className="mb-6 cursor-pointer hover:opacity-80 transition-opacity relative group"
+                  className="mb-6 text-sm sm:text-base cursor-pointer hover:opacity-80 transition-opacity relative group"
                   style={{ color: colorAssignment.textSecondary }}
                   onClick={(e) => handleElementClick('textSecondary', e)}
                   title="Click to change secondary text color"
@@ -738,9 +751,9 @@ export const BrandPreview: React.FC<BrandPreviewProps> = ({ colors, isDarkMode =
                   <div className="absolute inset-0 bg-gray-500 bg-opacity-0 group-hover:bg-opacity-5 rounded transition-all duration-200" />
                   <span className="relative z-10">{customContent.heroDescription}</span>
                 </p>
-                <div className="flex space-x-4">
+                <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
                   <button 
-                    className="px-6 py-3 rounded-lg font-medium text-white transition-all hover:opacity-90 hover:scale-105 cursor-pointer relative group"
+                    className="px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium text-white transition-all hover:opacity-90 hover:scale-105 cursor-pointer relative group text-sm sm:text-base"
                     style={{ backgroundColor: colorAssignment.primary }}
                     onClick={(e) => handleElementClick('primary', e)}
                     title="Click to change primary button color"
@@ -749,7 +762,7 @@ export const BrandPreview: React.FC<BrandPreviewProps> = ({ colors, isDarkMode =
                     <span className="relative z-10">{customContent.primaryButtonText}</span>
                   </button>
                   <button 
-                    className="px-6 py-3 rounded-lg font-medium border-2 transition-all hover:opacity-80 hover:scale-105 cursor-pointer relative group"
+                    className="px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium border-2 transition-all hover:opacity-80 hover:scale-105 cursor-pointer relative group text-sm sm:text-base"
                     style={{ 
                       borderColor: colorAssignment.secondary, 
                       color: colorAssignment.secondary 
@@ -763,17 +776,17 @@ export const BrandPreview: React.FC<BrandPreviewProps> = ({ colors, isDarkMode =
                 </div>
               </div>
               
-              {viewMode === 'desktop' && (
-                <div className="relative">
+              {(viewMode === 'desktop' || viewMode === 'mobile') && (
+                <div className="relative mt-6 lg:mt-0">
                   {imageAssets.heroImage ? (
                     <img 
                       src={imageAssets.heroImage} 
                       alt="Hero" 
-                      className="w-full h-48 object-cover rounded-lg"
+                      className="w-full h-32 sm:h-48 object-cover rounded-lg"
                     />
                   ) : (
                     <div 
-                      className="h-48 rounded-lg cursor-pointer hover:opacity-80 transition-opacity relative group"
+                      className="h-32 sm:h-48 rounded-lg cursor-pointer hover:opacity-80 transition-opacity relative group"
                       style={{ backgroundColor: colorAssignment.surface }}
                       onClick={(e) => handleElementClick('surface', e)}
                       title="Click to change surface color"
@@ -788,14 +801,14 @@ export const BrandPreview: React.FC<BrandPreviewProps> = ({ colors, isDarkMode =
 
           {/* Features Section */}
           <section 
-            className="p-6 cursor-pointer hover:opacity-95 transition-opacity relative group"
+            className="p-4 sm:p-6 cursor-pointer hover:opacity-95 transition-opacity relative group"
             style={{ backgroundColor: colorAssignment.surface }}
             onClick={(e) => handleElementClick('surface', e)}
             title="Click to change section background color"
           >
             <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-5 transition-all duration-200 pointer-events-none" />
             <h3 
-              className="text-2xl font-bold text-center mb-8 cursor-pointer hover:opacity-80 transition-opacity relative group/title z-10"
+              className="text-xl sm:text-2xl font-bold text-center mb-6 sm:mb-8 cursor-pointer hover:opacity-80 transition-opacity relative group/title z-10"
               style={{ color: colorAssignment.text }}
               onClick={(e) => handleElementClick('text', e)}
               title="Click to change text color"
@@ -804,11 +817,11 @@ export const BrandPreview: React.FC<BrandPreviewProps> = ({ colors, isDarkMode =
               <span className="relative z-10">{customContent.featureTitle}</span>
             </h3>
             
-            <div className={`grid gap-6 ${viewMode === 'mobile' ? 'grid-cols-1' : 'grid-cols-3'} relative z-10`}>
+            <div className={`grid gap-4 sm:gap-6 ${viewMode === 'mobile' ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'} relative z-10`}>
               {customContent.features.map((feature, index) => (
                 <div 
                   key={index}
-                  className="p-6 rounded-lg cursor-pointer hover:opacity-95 transition-all hover:scale-105 relative group/card"
+                  className="p-4 sm:p-6 rounded-lg cursor-pointer hover:opacity-95 transition-all hover:scale-105 relative group/card"
                   style={{ backgroundColor: colorAssignment.background }}
                   onClick={(e) => handleElementClick('background', e)}
                   title="Click to change card background color"
@@ -819,11 +832,11 @@ export const BrandPreview: React.FC<BrandPreviewProps> = ({ colors, isDarkMode =
                       <img 
                         src={imageAssets.featureIcons[index]!} 
                         alt={`Feature ${index + 1}`} 
-                        className="w-12 h-12 object-contain mb-4"
+                        className="w-10 h-10 sm:w-12 sm:h-12 object-contain mb-3 sm:mb-4"
                       />
                     ) : (
                       <div 
-                        className="w-12 h-12 rounded-lg mb-4 cursor-pointer hover:opacity-80 transition-opacity relative group/icon"
+                        className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg mb-3 sm:mb-4 cursor-pointer hover:opacity-80 transition-opacity relative group/icon"
                         style={{ backgroundColor: colors[index]?.hex || colorAssignment.accent }}
                         onClick={(e) => handleElementClick('accent', e)}
                         title="Click to change icon color"
@@ -832,7 +845,7 @@ export const BrandPreview: React.FC<BrandPreviewProps> = ({ colors, isDarkMode =
                       </div>
                     )}
                     <h4 
-                      className="text-lg font-semibold mb-2 cursor-pointer hover:opacity-80 transition-opacity relative group/text"
+                      className="text-base sm:text-lg font-semibold mb-2 cursor-pointer hover:opacity-80 transition-opacity relative group/text"
                       style={{ color: colorAssignment.text }}
                       onClick={(e) => handleElementClick('text', e)}
                       title="Click to change text color"
@@ -841,7 +854,7 @@ export const BrandPreview: React.FC<BrandPreviewProps> = ({ colors, isDarkMode =
                       <span className="relative z-10">{feature.title}</span>
                     </h4>
                     <p 
-                      className="cursor-pointer hover:opacity-80 transition-opacity relative group/desc"
+                      className="text-sm sm:text-base cursor-pointer hover:opacity-80 transition-opacity relative group/desc"
                       style={{ color: colorAssignment.textSecondary }}
                       onClick={(e) => handleElementClick('textSecondary', e)}
                       title="Click to change secondary text color"
@@ -857,13 +870,13 @@ export const BrandPreview: React.FC<BrandPreviewProps> = ({ colors, isDarkMode =
 
           {/* Footer */}
           <footer 
-            className="p-6 text-center cursor-pointer hover:opacity-90 transition-opacity relative group"
+            className="p-4 sm:p-6 text-center cursor-pointer hover:opacity-90 transition-opacity relative group"
             style={{ backgroundColor: colorAssignment.primary, color: 'white' }}
             onClick={(e) => handleElementClick('primary', e)}
             title="Click to change footer color"
           >
             <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-5 transition-all duration-200 pointer-events-none" />
-            <p className="opacity-90 relative z-10">
+            <p className="opacity-90 relative z-10 text-sm sm:text-base">
               {customContent.footerText}
             </p>
           </footer>

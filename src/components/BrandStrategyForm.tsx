@@ -81,22 +81,22 @@ export const BrandStrategyForm: React.FC<BrandStrategyFormProps> = ({
   const steps = [
     {
       title: 'Brand Basics',
-      icon: <Building className="w-5 h-5" />,
+      icon: <Building className="w-4 h-4 sm:w-5 sm:h-5" />,
       fields: ['brandName', 'industry']
     },
     {
       title: 'Audience & Goals',
-      icon: <Target className="w-5 h-5" />,
+      icon: <Target className="w-4 h-4 sm:w-5 sm:h-5" />,
       fields: ['targetAudience', 'goals']
     },
     {
       title: 'Personality & Values',
-      icon: <Heart className="w-5 h-5" />,
+      icon: <Heart className="w-4 h-4 sm:w-5 sm:h-5" />,
       fields: ['brandPersonality', 'values']
     },
     {
       title: 'Additional Context',
-      icon: <MessageSquare className="w-5 h-5" />,
+      icon: <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5" />,
       fields: ['competitors', 'additionalContext']
     }
   ];
@@ -125,10 +125,10 @@ export const BrandStrategyForm: React.FC<BrandStrategyFormProps> = ({
   const stepInactiveText = isDarkMode ? 'text-gray-400' : 'text-gray-500';
 
   return (
-    <div className={`${bgPrimary} rounded-lg border ${borderColor} p-6 transition-colors duration-300`}>
+    <div className={`${bgPrimary} rounded-lg border ${borderColor} p-4 sm:p-6 transition-colors duration-300`}>
       <div className="flex items-center space-x-3 mb-6">
         <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg">
-          <Brain className="w-5 h-5 text-white" />
+          <Brain className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
         </div>
         <div>
           <h3 className={`text-lg font-semibold ${textPrimary}`}>AI Brand Strategy</h3>
@@ -137,23 +137,23 @@ export const BrandStrategyForm: React.FC<BrandStrategyFormProps> = ({
       </div>
 
       {/* Progress Steps */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-6 sm:mb-8 overflow-x-auto">
         {steps.map((step, index) => (
-          <div key={index} className="flex items-center">
-            <div className={`flex items-center space-x-2 ${
+          <div key={index} className="flex items-center flex-shrink-0">
+            <div className={`flex items-center space-x-1 sm:space-x-2 ${
               index <= currentStep ? stepActiveText : stepInactiveText
             }`}>
-              <div className={`p-2 rounded-full ${
+              <div className={`p-1.5 sm:p-2 rounded-full ${
                 index <= currentStep 
                   ? 'bg-purple-100 dark:bg-purple-900' 
                   : isDarkMode ? 'bg-gray-700' : 'bg-gray-100'
               }`}>
                 {step.icon}
               </div>
-              <span className="text-sm font-medium hidden sm:inline">{step.title}</span>
+              <span className="text-xs sm:text-sm font-medium hidden sm:inline">{step.title}</span>
             </div>
             {index < steps.length - 1 && (
-              <div className={`w-8 h-0.5 mx-2 ${
+              <div className={`w-4 sm:w-8 h-0.5 mx-1 sm:mx-2 ${
                 index < currentStep ? 'bg-purple-600 dark:bg-purple-400' : 'bg-gray-300 dark:bg-gray-600'
               }`} />
             )}
@@ -161,7 +161,7 @@ export const BrandStrategyForm: React.FC<BrandStrategyFormProps> = ({
         ))}
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
         {/* Step 0: Brand Basics */}
         {currentStep === 0 && (
           <div className="space-y-4">
@@ -236,13 +236,13 @@ export const BrandStrategyForm: React.FC<BrandStrategyFormProps> = ({
               <label className={`block text-sm font-medium ${textPrimary} mb-3`}>
                 Brand Personality * (Select 2-5 traits)
               </label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {personalityOptions.map(personality => (
                   <button
                     key={personality}
                     type="button"
                     onClick={() => handlePersonalityToggle(personality)}
-                    className={`px-3 py-2 text-sm rounded-lg border transition-colors ${
+                    className={`px-2 sm:px-3 py-2 text-xs sm:text-sm rounded-lg border transition-colors ${
                       strategy.brandPersonality.includes(personality)
                         ? 'bg-purple-100 border-purple-300 text-purple-700 dark:bg-purple-900 dark:border-purple-600 dark:text-purple-200'
                         : `${bgSecondary} ${borderColor} ${textPrimary} ${buttonBg}`
@@ -261,13 +261,13 @@ export const BrandStrategyForm: React.FC<BrandStrategyFormProps> = ({
               <label className={`block text-sm font-medium ${textPrimary} mb-3`}>
                 Core Values * (Select 2-5 values)
               </label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {valueOptions.map(value => (
                   <button
                     key={value}
                     type="button"
                     onClick={() => handleValueToggle(value)}
-                    className={`px-3 py-2 text-sm rounded-lg border transition-colors ${
+                    className={`px-2 sm:px-3 py-2 text-xs sm:text-sm rounded-lg border transition-colors ${
                       strategy.values.includes(value)
                         ? 'bg-purple-100 border-purple-300 text-purple-700 dark:bg-purple-900 dark:border-purple-600 dark:text-purple-200'
                         : `${bgSecondary} ${borderColor} ${textPrimary} ${buttonBg}`
@@ -320,7 +320,7 @@ export const BrandStrategyForm: React.FC<BrandStrategyFormProps> = ({
             type="button"
             onClick={prevStep}
             disabled={currentStep === 0}
-            className={`px-4 py-2 text-sm border rounded-lg transition-colors ${
+            className={`px-3 sm:px-4 py-2 text-sm border rounded-lg transition-colors ${
               currentStep === 0 
                 ? 'opacity-50 cursor-not-allowed text-gray-400 border-gray-300 dark:border-gray-600' 
                 : `${borderColor} ${textPrimary} ${buttonBg}`
@@ -329,12 +329,12 @@ export const BrandStrategyForm: React.FC<BrandStrategyFormProps> = ({
             Previous
           </button>
 
-          <div className="flex space-x-3">
+          <div className="flex space-x-2 sm:space-x-3">
             {currentStep < steps.length - 1 ? (
               <button
                 type="button"
                 onClick={nextStep}
-                className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm"
+                className="px-4 sm:px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm"
               >
                 Next
               </button>
@@ -342,7 +342,7 @@ export const BrandStrategyForm: React.FC<BrandStrategyFormProps> = ({
               <button
                 type="submit"
                 disabled={!isFormValid() || isLoading}
-                className={`px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all text-sm flex items-center space-x-2 ${
+                className={`px-4 sm:px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all text-sm flex items-center space-x-2 ${
                   (!isFormValid() || isLoading) ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
               >
