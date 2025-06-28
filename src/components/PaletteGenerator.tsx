@@ -157,6 +157,10 @@ export const PaletteGenerator: React.FC = () => {
     setActiveTab('ai');
   };
 
+  const handleClearBrandStrategy = () => {
+    setBrandStrategy(null);
+  };
+
   const handleAIColorsApply = (aiColors: ColorInfo[], aiHarmonyType: HarmonyType) => {
     setColors(aiColors);
     setHarmonyType(aiHarmonyType);
@@ -531,6 +535,7 @@ export const PaletteGenerator: React.FC = () => {
               brandStrategy={brandStrategy}
               currentColors={colors}
               onApplyColors={handleAIColorsApply}
+              onClearBrandStrategy={handleClearBrandStrategy}
               isDarkMode={isDarkMode}
             />
           </div>

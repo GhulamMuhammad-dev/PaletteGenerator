@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Brain, Sparkles, RefreshCw, Lightbulb, Eye, Copy, Check, AlertCircle, Zap } from 'lucide-react';
+import { Brain, Sparkles, RefreshCw, Lightbulb, Eye, Copy, Check, AlertCircle, Zap, Trash2, RotateCcw } from 'lucide-react';
 import { ColorDisplay } from './ColorDisplay';
 import { AIAnalysis, BrandStrategy } from '../types/ai';
 import { ColorInfo, HarmonyType } from '../types/color';
@@ -10,6 +10,7 @@ interface AISuggestionsProps {
   brandStrategy: BrandStrategy | null;
   currentColors: ColorInfo[];
   onApplyColors: (colors: ColorInfo[], harmonyType: HarmonyType) => void;
+  onClearBrandStrategy: () => void;
   isDarkMode?: boolean;
 }
 
@@ -17,6 +18,7 @@ export const AISuggestions: React.FC<AISuggestionsProps> = ({
   brandStrategy,
   currentColors,
   onApplyColors,
+  onClearBrandStrategy,
   isDarkMode = false
 }) => {
   const [analysis, setAnalysis] = useState<AIAnalysis | null>(null);
@@ -25,6 +27,7 @@ export const AISuggestions: React.FC<AISuggestionsProps> = ({
   const [enhancedColors, setEnhancedColors] = useState<string[]>([]);
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [copiedText, setCopiedText] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const generateSuggestions = async () => {
     if (!brandStrategy) return;
@@ -74,6 +77,18 @@ export const AISuggestions: React.FC<AISuggestionsProps> = ({
     }
   };
 
+  const handleDeleteBrandStrategy = () => {
+    onClearBrandStrategy();
+    setAnalysis(null);
+    setEnhancedColors([]);
+    setError(null);
+    setShowDeleteConfirm(false);
+  };
+
+  const clearEnhancedColors = () => {
+    setEnhancedColors([]);
+  };
+
   // Theme classes with improved contrast
   const bgPrimary = isDarkMode ? 'bg-gray-800' : 'bg-white';
   const bgSecondary = isDarkMode ? 'bg-gray-700' : 'bg-gray-50';
@@ -97,7 +112,8 @@ export const AISuggestions: React.FC<AISuggestionsProps> = ({
             <p className={`text-sm ${textSecondary} mb-2`}>Add these environment variables:</p>
             <code className={`text-xs ${textPrimary} block font-mono`}>
               VITE_AZURE_OPENAI_API_KEY=your_api_key<br />
-              VITE_AZURE_OPENAI_ENDPOINT=your_endpoint
+              VITE_AZURE_OPENAI_ENDPOINT=your_endpoint<br />
+              VITE_AZURE_OPENAI_DEPLOYMENT_NAME=your_deployment_name
             </code>
           </div>
         </div>
@@ -121,6 +137,18 @@ export const AISuggestions: React.FC<AISuggestionsProps> = ({
         </div>
 
         <div className="flex space-x-2">
+          {/* Delete Brand Strategy Button */}
+          {brandStrategy && (
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              className="px-3 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors text-sm flex items-center space-x-2"
+              title="Delete brand strategy and start fresh"
+            >
+              <Trash2 className="w-4 h-4" />
+              <span className="hidden sm:inline">Clear Data</span>
+            </button>
+          )}
+
           {currentColors.length > 0 && brandStrategy && (
             <button
               onClick={enhanceCurrentPalette}
@@ -165,6 +193,40 @@ export const AISuggestions: React.FC<AISuggestionsProps> = ({
         </div>
       </div>
 
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className={`${bgPrimary} rounded-lg border ${borderColor} p-6 max-w-md w-full`}>
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="p-2 bg-red-100 dark:bg-red-900/20 rounded-lg">
+                <Trash2 className="w-5 h-5 text-red-600" />
+              </div>
+              <h3 className={`text-lg font-semibold ${textPrimary}`}>Clear Brand Strategy</h3>
+            </div>
+            
+            <p className={`${textSecondary} mb-6`}>
+              Are you sure you want to delete your current brand strategy? This will clear all AI suggestions and you'll need to set up your brand information again.
+            </p>
+            
+            <div className="flex space-x-3">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className={`flex-1 px-4 py-2 border ${borderColor} ${textPrimary} rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors`}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteBrandStrategy}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center space-x-2"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span>Delete</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {error && (
         <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
           <div className="flex items-center space-x-2">
@@ -182,12 +244,21 @@ export const AISuggestions: React.FC<AISuggestionsProps> = ({
               <Zap className="w-4 h-4" />
               <span>Enhanced Palette</span>
             </h4>
-            <button
-              onClick={() => applyAISuggestion(enhancedColors, 'analogous')}
-              className="px-3 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 transition-colors"
-            >
-              Apply Enhanced
-            </button>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => applyAISuggestion(enhancedColors, 'analogous')}
+                className="px-3 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 transition-colors"
+              >
+                Apply Enhanced
+              </button>
+              <button
+                onClick={clearEnhancedColors}
+                className="px-3 py-1 text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded text-xs transition-colors flex items-center space-x-1"
+              >
+                <RotateCcw className="w-3 h-3" />
+                <span>Clear</span>
+              </button>
+            </div>
           </div>
           <div className="grid grid-cols-5 gap-3">
             {enhancedColors.map((color, index) => (
@@ -199,6 +270,9 @@ export const AISuggestions: React.FC<AISuggestionsProps> = ({
               />
             ))}
           </div>
+          <p className="text-xs text-blue-700 dark:text-blue-300 mt-2">
+            💡 This enhanced version improves your current palette based on your brand strategy
+          </p>
         </div>
       )}
 
