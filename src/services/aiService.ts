@@ -14,7 +14,7 @@ class AIService {
   private initializeOpenAI() {
     const apiKey = import.meta.env.VITE_AZURE_OPENAI_API_KEY;
     const endpoint = import.meta.env.VITE_AZURE_OPENAI_ENDPOINT;
-    const deploymentName = import.meta.env.AZURE_AI_MODEL || 'gpt-4';
+    const deploymentName = import.meta.env.VITE_AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-4';
 
     if (!apiKey || !endpoint) {
       console.warn('Azure OpenAI credentials not found. AI features will be disabled.');
