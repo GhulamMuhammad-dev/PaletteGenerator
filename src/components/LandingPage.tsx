@@ -605,18 +605,6 @@ export const LandingPage: React.FC = () => {
               <p className="text-gray-400 mb-6 max-w-md">
                 Professional color palette generator with AI-powered suggestions, accessibility checking, and seamless export options.
               </p>
-              
-              {/* Made with Bolt Badge */}
-              <a
-                href="https://bolt.new"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg hover:from-orange-600 hover:to-red-600 transition-all transform hover:scale-105 text-sm font-semibold"
-              >
-                <Zap className="w-4 h-4" />
-                <span>Made with Bolt</span>
-                <ExternalLink className="w-3 h-3" />
-              </a>
             </div>
 
             <div>
